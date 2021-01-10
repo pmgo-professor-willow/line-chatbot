@@ -49,8 +49,8 @@ func LoadGameEvents() []GameEvent {
 }
 
 func generateEventBubbleMessage(event GameEvent) *linebot.BubbleContainer {
-	var flex int = 0
-	var remainingText string = "尚未公布結束時間"
+	flex := 0
+	remainingText := "尚未公布結束時間"
 
 	if event.EndTime != "" {
 		endTime, _ := time.Parse(time.RFC3339, event.EndTime)
@@ -119,15 +119,31 @@ func generateEventBubbleMessage(event GameEvent) *linebot.BubbleContainer {
 	}
 }
 
+type DataCache struct {
+	GameEvents []GameEvent
+	UpdatedAt  time.Time
+}
+
+var cache = &DataCache{
+	GameEvents: []GameEvent{},
+	UpdatedAt:  time.Now().AddDate(0, 0, -1),
+}
+
 func WebhookFunction(w http.ResponseWriter, req *http.Request) {
-	lineChannelSecret := os.Getenv("LINE_CHANNEL_SECRET")
-	lineChannelAccessToken := os.Getenv("LINE_CHANNEL_ACCESS_TOKEN")
-	gameEvents := LoadGameEvents()
+	// Refresh cache about data from cloud.
+	if time.Since(cache.UpdatedAt).Minutes() > 1 {
+		cache.GameEvents = LoadGameEvents()
+		cache.UpdatedAt = time.Now()
+	}
 
-	clientOption := linebot.WithHTTPClient(&http.Client{})
-	bot, _ := linebot.New(lineChannelSecret, lineChannelAccessToken, clientOption)
+	// LINE messaging API client
+	var client, _ = linebot.New(
+		os.Getenv("LINE_CHANNEL_SECRET"),
+		os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"),
+		linebot.WithHTTPClient(&http.Client{}),
+	)
 
-	events, _ := bot.ParseRequest(req)
+	events, _ := client.ParseRequest(req)
 	for _, event := range events {
 		if event.Type != linebot.EventTypePostback {
 			break
@@ -137,7 +153,7 @@ func WebhookFunction(w http.ResponseWriter, req *http.Request) {
 
 		if qs.Get("event") != "" {
 			selectedEventLabel := qs.Get("event")
-			eventChunks := funk.Chunk(funk.Filter(gameEvents, func(gameEvent GameEvent) bool {
+			eventChunks := funk.Chunk(funk.Filter(cache.GameEvents, func(gameEvent GameEvent) bool {
 				isCurrentEvent := gameEvent.Label == selectedEventLabel
 
 				isInProgress := false
@@ -165,7 +181,7 @@ func WebhookFunction(w http.ResponseWriter, req *http.Request) {
 				)
 			}).([]linebot.SendingMessage)
 
-			if _, err := bot.ReplyMessage(event.ReplyToken, eventChunkMessages...).Do(); err != nil {
+			if _, err := client.ReplyMessage(event.ReplyToken, eventChunkMessages...).Do(); err != nil {
 			}
 		}
 	}
