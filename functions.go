@@ -17,6 +17,7 @@ func WebhookFunction(w http.ResponseWriter, r *http.Request) {
 	// Refresh cache about data from cloud.
 	if time.Since(cache.UpdatedAt).Minutes() > 1 {
 		cache.GameEvents = LoadGameEvents()
+		cache.TweetList = LoadTweetList()
 		cache.UpdatedAt = time.Now()
 	}
 
@@ -65,7 +66,51 @@ func WebhookFunction(w http.ResponseWriter, r *http.Request) {
 				)
 			}).([]linebot.SendingMessage)
 
-			if _, err := client.ReplyMessage(event.ReplyToken, eventChunkMessages...).Do(); err != nil {
+			replyMessageCall := client.ReplyMessage(event.ReplyToken, eventChunkMessages...)
+
+			if _, err := replyMessageCall.Do(); err != nil {
+			}
+		} else if qs.Get("graphics") != "" && qs.Get("tweetId") == "" {
+			selectedTwitterUser := qs.Get("graphics")
+			selectedUserTweets := funk.Find(cache.TweetList, func(userTweets UserTweets) bool {
+				return userTweets.Name == selectedTwitterUser
+			}).(UserTweets)
+
+			message := linebot.NewTemplateMessage(
+				"近期的活動圖文資訊",
+				&linebot.ImageCarouselTemplate{
+					Columns: funk.Map(
+						selectedUserTweets.Tweets,
+						func(tweet TweetData) *linebot.ImageCarouselColumn {
+							return GenerateGraphicMessage(selectedUserTweets.Name, tweet)
+						},
+					).([]*linebot.ImageCarouselColumn),
+				},
+			)
+
+			if _, err := client.ReplyMessage(event.ReplyToken, message).Do(); err != nil {
+			}
+		} else if qs.Get("graphics") != "" && qs.Get("tweetId") != "" {
+			selectedTwitterUser := qs.Get("graphics")
+			selectedTweetId := qs.Get("tweetId")
+			selectedUserTweets := funk.Find(cache.TweetList, func(userTweets UserTweets) bool {
+				return userTweets.Name == selectedTwitterUser
+			}).(UserTweets)
+			selectedTweet := funk.Find(selectedUserTweets.Tweets, func(tweet TweetData) bool {
+				return tweet.Id == selectedTweetId
+			}).(TweetData)
+
+			replyMessageCall := client.ReplyMessage(
+				event.ReplyToken,
+				linebot.NewTextMessage(selectedTweet.Text),
+				linebot.NewImageMessage(selectedTweet.Media.URL, selectedTweet.Media.URL),
+				linebot.NewTextMessage(fmt.Sprintf(
+					"以上圖文訊息由 %s 整理",
+					selectedTwitterUser,
+				)),
+			)
+
+			if _, err := replyMessageCall.Do(); err != nil {
 			}
 		}
 	}
