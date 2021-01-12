@@ -5,6 +5,7 @@ go.sum
 .gitignore
 
 # For development
+/doc
 /cmd
 .env
 .env.example
