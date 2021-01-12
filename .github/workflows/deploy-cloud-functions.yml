@@ -1,0 +1,25 @@
+name: deploy on GCP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: deploy production cloud functions
+    runs-on: ubuntu-latest
+    steps:
+      - id: deploy
+        uses: google-github-actions/deploy-cloud-functions@main
+        with:
+          name: webhook
+          credentials: ${{ secrets.GCP_CREDENTIALS }}
+          runtime: go113
+          entry_point: WebhookFunction
+          region: asia-east2
+          env_vars: LINE_CHANNEL_SECRET=${{ secrets.LINE_CHANNEL_SECRET }},LINE_CHANNEL_ACCESS_TOKEN=${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          timeout: 10
+
+      - id: test
+        run: curl "${{ steps.deploy.outputs.url }}"

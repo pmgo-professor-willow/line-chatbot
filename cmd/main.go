@@ -4,10 +4,10 @@ import (
 	"context"
 	"log"
 	"os"
-	"pmgo-professor-willow/lineChatbot"
 
 	"github.com/GoogleCloudPlatform/functions-framework-go/funcframework"
 	"github.com/joho/godotenv"
+	"pmgo-professor-willow/lineChatbot"
 )
 
 func main() {
@@ -18,7 +18,7 @@ func main() {
 	}
 
 	ctx := context.Background()
-	if err := funcframework.RegisterHTTPFunctionContext(ctx, "/", lineChatbot.WebhookFunction); err != nil {
+	if err := funcframework.RegisterHTTPFunctionContext(ctx, "/", functions.WebhookFunction); err != nil {
 		log.Fatalf("funcframework.RegisterHTTPFunctionContext: %v\n", err)
 	}
 

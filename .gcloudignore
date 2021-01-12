@@ -1,0 +1,11 @@
+go.mod
+go.sum
+
+.git
+.gitignore
+
+# For development
+/cmd
+.env
+.env.example
+README.md
