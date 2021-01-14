@@ -7,11 +7,31 @@ import (
 	"time"
 )
 
+type RaidBoss struct {
+	Tier           string   `json:"tier"`
+	No             int      `json:"no"`
+	Name           string   `json:"name"`
+	ImageURL       string   `json:"imageUrl"`
+	ShinyAvailable bool     `json:"shinyAvailable"`
+	Types          []string `json:"types"`
+	TypeURLs       []string `json:"typeUrls"`
+	CP             struct {
+		Min int `json:"min"`
+		Max int `json:"max"`
+	} `json:"cp"`
+	BoostedCP struct {
+		Min int `json:"min"`
+		Max int `json:"max"`
+	} `json:"boostedCp"`
+	BoostedWeathers    []string `json:"boostedWeathers"`
+	BoostedWeatherURLs []string `json:"boostedWeatherUrls"`
+}
+
 type GameEvent struct {
 	Title        string `json:"title"`
 	Link         string `json:"link"`
 	Type         string `json:"type"`
-	ImageUrl     string `json:"imageUrl"`
+	ImageURL     string `json:"imageUrl"`
 	Label        string `json:"label"`
 	IsLocaleTime bool   `json:"isLocaleTime"`
 	StartTime    string `json:"startTime"`
@@ -39,9 +59,28 @@ type UserTweets struct {
 }
 
 type DataCache struct {
+	RaidBosses []RaidBoss
 	GameEvents []GameEvent
 	TweetList  []UserTweets
 	UpdatedAt  time.Time
+}
+
+func LoadRaidBosses() []RaidBoss {
+	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-leekduck/raid-bosses.json")
+
+	if fetchErr == nil {
+		defer resp.Body.Close()
+		bodyBuf, readErr := ioutil.ReadAll(resp.Body)
+
+		if readErr == nil {
+			events := []RaidBoss{}
+			json.Unmarshal(bodyBuf, &events)
+
+			return events
+		}
+	}
+
+	return []RaidBoss{}
 }
 
 func LoadGameEvents() []GameEvent {
@@ -82,6 +121,7 @@ func LoadTweetList() []UserTweets {
 
 func GetCache() *DataCache {
 	return &DataCache{
+		RaidBosses: []RaidBoss{},
 		GameEvents: []GameEvent{},
 		TweetList:  []UserTweets{},
 		UpdatedAt:  time.Now().AddDate(0, 0, -1),

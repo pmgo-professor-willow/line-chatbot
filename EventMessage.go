@@ -47,7 +47,7 @@ func GenerateEventBubbleMessage(event GameEvent) *linebot.BubbleContainer {
 		Hero: &linebot.ImageComponent{
 			Type:        linebot.FlexComponentTypeImage,
 			Size:        linebot.FlexImageSizeTypeFull,
-			URL:         event.ImageUrl,
+			URL:         event.ImageURL,
 			AspectRatio: "2:1",
 		},
 		Body: &linebot.BoxComponent{

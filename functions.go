@@ -16,6 +16,7 @@ func WebhookFunction(w http.ResponseWriter, r *http.Request) {
 
 	// Refresh cache about data from cloud.
 	if time.Since(cache.UpdatedAt).Minutes() > 1 {
+		cache.RaidBosses = LoadRaidBosses()
 		cache.GameEvents = LoadGameEvents()
 		cache.TweetList = LoadTweetList()
 		cache.UpdatedAt = time.Now()
@@ -36,7 +37,40 @@ func WebhookFunction(w http.ResponseWriter, r *http.Request) {
 
 		qs, _ := url.ParseQuery(event.Postback.Data)
 
-		if qs.Get("event") != "" {
+		if qs.Get("raidTier") != "" {
+			selectedRaidTier := qs.Get("raidTier")
+			selectedRaidBosses := funk.Filter(cache.RaidBosses, func(raidBoss RaidBoss) bool {
+				return raidBoss.Tier == selectedRaidTier
+			})
+
+			replyMessageCall := client.ReplyMessage(
+				event.ReplyToken,
+				linebot.NewFlexMessage(
+					fmt.Sprintf("%s 星團體戰列表", selectedRaidTier),
+					&linebot.CarouselContainer{
+						Type: linebot.FlexContainerTypeCarousel,
+						Contents: funk.Map(
+							selectedRaidBosses,
+							generateRaidBossMessage,
+						).([]*linebot.BubbleContainer),
+					},
+				),
+			)
+
+			if _, err := replyMessageCall.Do(); err != nil {
+			}
+
+			// await client.replyMessage(replyToken, [
+			//   {
+			// 	type: 'flex',
+			// 	altText: `${qs.raidTier} 星團體戰列表`,
+			// 	contents: {
+			// 	  type: 'carousel',
+			// 	  contents: raidBosses.map(generateRaidBossBubbleMessage),
+			// 	},
+			//   },
+			// ]);
+		} else if qs.Get("event") != "" {
 			selectedEventLabel := qs.Get("event")
 			eventChunks := funk.Chunk(funk.Filter(cache.GameEvents, func(gameEvent GameEvent) bool {
 				isCurrentEvent := gameEvent.Label == selectedEventLabel
