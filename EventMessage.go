@@ -5,16 +5,34 @@ import (
 	"time"
 
 	"github.com/line/line-bot-sdk-go/linebot"
+	"github.com/thoas/go-funk"
 )
 
+// RemainingTime is converted by time.Duration
 type RemainingTime struct {
 	Days    int
 	Hours   int
 	Minutes int
 }
 
+// GenerateGameEventMessages converts game events to LINE flex messages
+func GenerateGameEventMessages(gameEvents []GameEvent) []linebot.SendingMessage {
+	eventChunks := funk.Chunk(gameEvents, 10).([][]GameEvent)
+
+	return funk.Map(eventChunks, func(eventChunk []GameEvent) linebot.SendingMessage {
+		return linebot.NewFlexMessage(
+			"進行中的活動",
+			&linebot.CarouselContainer{
+				Type:     linebot.FlexContainerTypeCarousel,
+				Contents: funk.Map(eventChunk, GenerateEventBubbleMessage).([]*linebot.BubbleContainer),
+			},
+		)
+	}).([]linebot.SendingMessage)
+}
+
+// GenerateEventBubbleMessage converts game event to LINE bubble message
 func GenerateEventBubbleMessage(event GameEvent) *linebot.BubbleContainer {
-	flex := 0
+	withoutFlex := 0
 	remainingText := "尚未公布結束時間"
 
 	if event.EndTime != "" {
@@ -47,7 +65,7 @@ func GenerateEventBubbleMessage(event GameEvent) *linebot.BubbleContainer {
 		Hero: &linebot.ImageComponent{
 			Type:        linebot.FlexComponentTypeImage,
 			Size:        linebot.FlexImageSizeTypeFull,
-			URL:         event.ImageUrl,
+			URL:         event.ImageURL,
 			AspectRatio: "2:1",
 		},
 		Body: &linebot.BoxComponent{
@@ -62,7 +80,7 @@ func GenerateEventBubbleMessage(event GameEvent) *linebot.BubbleContainer {
 							Type:  linebot.FlexComponentTypeText,
 							Text:  remainingText,
 							Color: "#6C757D",
-							Flex:  &flex,
+							Flex:  &withoutFlex,
 							Align: linebot.FlexComponentAlignTypeEnd,
 						},
 					},
