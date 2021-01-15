@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/line/line-bot-sdk-go/linebot"
-	"github.com/thoas/go-funk"
 )
 
 // WebhookFunction is base LINE webhook entry
@@ -40,77 +39,39 @@ func WebhookFunction(w http.ResponseWriter, r *http.Request) {
 
 		if qs.Get("raidTier") != "" {
 			selectedRaidTier := qs.Get("raidTier")
-			selectedRaidBosses := funk.Filter(cache.RaidBosses, func(raidBoss RaidBoss) bool {
-				return raidBoss.Tier == selectedRaidTier
-			})
+			selectedRaidBosses := FilterdRaidBosses(cache.RaidBosses, selectedRaidTier)
+			messages := GenerateRaidBossMessages(selectedRaidBosses, selectedRaidTier)
 
-			replyMessageCall := client.ReplyMessage(
-				event.ReplyToken,
-				linebot.NewFlexMessage(
-					fmt.Sprintf("%s 星團體戰列表", selectedRaidTier),
-					&linebot.CarouselContainer{
-						Type: linebot.FlexContainerTypeCarousel,
-						Contents: funk.Map(
-							selectedRaidBosses,
-							generateRaidBossMessage,
-						).([]*linebot.BubbleContainer),
-					},
-				),
-			)
+			replyMessageCall := client.ReplyMessage(event.ReplyToken, messages...)
 
 			if _, err := replyMessageCall.Do(); err != nil {
 			}
-
-			// await client.replyMessage(replyToken, [
-			//   {
-			// 	type: 'flex',
-			// 	altText: `${qs.raidTier} 星團體戰列表`,
-			// 	contents: {
-			// 	  type: 'carousel',
-			// 	  contents: raidBosses.map(generateRaidBossBubbleMessage),
-			// 	},
-			//   },
-			// ]);
 		} else if qs.Get("event") != "" {
 			selectedEventLabel := qs.Get("event")
 			filteredGameEvents := FilterGameEvents(cache.GameEvents, selectedEventLabel)
-			eventChunkMessages := GenerateGameEventMessages(filteredGameEvents)
+			messages := GenerateGameEventMessages(filteredGameEvents)
 
-			replyMessageCall := client.ReplyMessage(event.ReplyToken, eventChunkMessages...)
+			replyMessageCall := client.ReplyMessage(event.ReplyToken, messages...)
 
 			if _, err := replyMessageCall.Do(); err != nil {
 			}
 		} else if qs.Get("graphics") != "" && qs.Get("tweetId") == "" {
 			selectedTwitterUser := qs.Get("graphics")
-			selectedUserTweets := funk.Find(cache.TweetList, func(userTweets UserTweets) bool {
-				return userTweets.Name == selectedTwitterUser
-			}).(UserTweets)
+			selectedUserTweets := FindUserTweets(cache.TweetList, selectedTwitterUser)
+			messages := GenerateGraphicCatalogMessages(selectedUserTweets)
 
-			message := GenerateGraphicMessage(selectedUserTweets)
-
-			replyMessageCall := client.ReplyMessage(event.ReplyToken, message)
+			replyMessageCall := client.ReplyMessage(event.ReplyToken, messages...)
 
 			if _, err := replyMessageCall.Do(); err != nil {
 			}
 		} else if qs.Get("graphics") != "" && qs.Get("tweetId") != "" {
 			selectedTwitterUser := qs.Get("graphics")
 			selectedTweetID := qs.Get("tweetId")
-			selectedUserTweets := funk.Find(cache.TweetList, func(userTweets UserTweets) bool {
-				return userTweets.Name == selectedTwitterUser
-			}).(UserTweets)
-			selectedTweet := funk.Find(selectedUserTweets.Tweets, func(tweet TweetData) bool {
-				return tweet.ID == selectedTweetID
-			}).(TweetData)
+			selectedUserTweets := FindUserTweets(cache.TweetList, selectedTwitterUser)
+			selectedTweet := FindTweet(selectedUserTweets.Tweets, selectedTweetID)
+			messages := GenerateGraphicDetailMessages(selectedTweet, selectedTwitterUser)
 
-			replyMessageCall := client.ReplyMessage(
-				event.ReplyToken,
-				linebot.NewTextMessage(selectedTweet.Text),
-				linebot.NewImageMessage(selectedTweet.Media.URL, selectedTweet.Media.URL),
-				linebot.NewTextMessage(fmt.Sprintf(
-					"以上圖文訊息由 %s 整理",
-					selectedTwitterUser,
-				)),
-			)
+			replyMessageCall := client.ReplyMessage(event.ReplyToken, messages...)
 
 			if _, err := replyMessageCall.Do(); err != nil {
 			}

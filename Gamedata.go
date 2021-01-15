@@ -130,6 +130,13 @@ func LoadTweetList() []UserTweets {
 	return []UserTweets{}
 }
 
+// FilterdRaidBosses filters raid bosses by specified tier
+func FilterdRaidBosses(raidBosses []RaidBoss, raidTier string) []RaidBoss {
+	return funk.Filter(raidBosses, func(raidBoss RaidBoss) bool {
+		return raidBoss.Tier == raidTier
+	}).([]RaidBoss)
+}
+
 // FilterGameEvents filters game events by specified label
 func FilterGameEvents(gameEvents []GameEvent, label string) []GameEvent {
 	return funk.Filter(gameEvents, func(gameEvent GameEvent) bool {
@@ -149,6 +156,20 @@ func FilterGameEvents(gameEvents []GameEvent, label string) []GameEvent {
 
 		return isCurrentEvent && isInProgress
 	}).([]GameEvent)
+}
+
+// FindUserTweets finds user tweets by specified user
+func FindUserTweets(tweetList []UserTweets, twitterUser string) UserTweets {
+	return funk.Find(tweetList, func(userTweets UserTweets) bool {
+		return userTweets.Name == twitterUser
+	}).(UserTweets)
+}
+
+// FindTweet finds tweet by specified ID
+func FindTweet(tweets []TweetData, tweetID string) TweetData {
+	return funk.Find(tweets, func(tweet TweetData) bool {
+		return tweet.ID == tweetID
+	}).(TweetData)
 }
 
 // GetCache stores data from remote

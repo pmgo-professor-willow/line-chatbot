@@ -8,7 +8,26 @@ import (
 	"github.com/thoas/go-funk"
 )
 
-func generateRaidBossMessage(raidBoss RaidBoss) *linebot.BubbleContainer {
+// GenerateRaidBossMessages converts raid bosses to LINE flex messages
+func GenerateRaidBossMessages(raidBosses []RaidBoss, raidTier string) []linebot.SendingMessage {
+	bossChunks := funk.Chunk(raidBosses, 10).([][]RaidBoss)
+
+	return funk.Map(bossChunks, func(bossChunk []RaidBoss) linebot.SendingMessage {
+		return linebot.NewFlexMessage(
+			fmt.Sprintf("%s 星團體戰列表", raidTier),
+			&linebot.CarouselContainer{
+				Type: linebot.FlexContainerTypeCarousel,
+				Contents: funk.Map(
+					bossChunk,
+					GenerateRaidBossBubbleMessage,
+				).([]*linebot.BubbleContainer),
+			},
+		)
+	}).([]linebot.SendingMessage)
+}
+
+// GenerateRaidBossBubbleMessage converts raid boss to LINE bubble message
+func GenerateRaidBossBubbleMessage(raidBoss RaidBoss) *linebot.BubbleContainer {
 	maxFlex := 10
 	minFlex := 1
 	withoutFlex := 0
