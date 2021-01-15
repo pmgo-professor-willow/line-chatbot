@@ -11,6 +11,7 @@ import (
 	"github.com/thoas/go-funk"
 )
 
+// WebhookFunction is base LINE webhook entry
 func WebhookFunction(w http.ResponseWriter, r *http.Request) {
 	cache := GetCache()
 
@@ -72,33 +73,8 @@ func WebhookFunction(w http.ResponseWriter, r *http.Request) {
 			// ]);
 		} else if qs.Get("event") != "" {
 			selectedEventLabel := qs.Get("event")
-			eventChunks := funk.Chunk(funk.Filter(cache.GameEvents, func(gameEvent GameEvent) bool {
-				isCurrentEvent := gameEvent.Label == selectedEventLabel
-
-				isInProgress := false
-				if gameEvent.StartTime != "" && gameEvent.EndTime != "" {
-					startTime, _ := time.Parse(time.RFC3339, gameEvent.StartTime)
-					endTime, _ := time.Parse(time.RFC3339, gameEvent.EndTime)
-					isInProgress = int(time.Now().Sub(startTime).Minutes()) > 0 && int(endTime.Sub(time.Now()).Minutes()) > 0
-				} else if gameEvent.EndTime != "" {
-					endTime, _ := time.Parse(time.RFC3339, gameEvent.EndTime)
-					isInProgress = int(endTime.Sub(time.Now()).Minutes()) > 0
-				} else if gameEvent.StartTime == "" && gameEvent.EndTime == "" {
-					isInProgress = true
-				}
-
-				return isCurrentEvent && isInProgress
-			}).([]GameEvent), 10).([][]GameEvent)
-
-			eventChunkMessages := funk.Map(eventChunks, func(eventChunk []GameEvent) linebot.SendingMessage {
-				return linebot.NewFlexMessage(
-					"進行中的活動",
-					&linebot.CarouselContainer{
-						Type:     linebot.FlexContainerTypeCarousel,
-						Contents: funk.Map(eventChunk, GenerateEventBubbleMessage).([]*linebot.BubbleContainer),
-					},
-				)
-			}).([]linebot.SendingMessage)
+			filteredGameEvents := FilterGameEvents(cache.GameEvents, selectedEventLabel)
+			eventChunkMessages := GenerateGameEventMessages(filteredGameEvents)
 
 			replyMessageCall := client.ReplyMessage(event.ReplyToken, eventChunkMessages...)
 
@@ -110,28 +86,20 @@ func WebhookFunction(w http.ResponseWriter, r *http.Request) {
 				return userTweets.Name == selectedTwitterUser
 			}).(UserTweets)
 
-			message := linebot.NewTemplateMessage(
-				"近期的活動圖文資訊",
-				&linebot.ImageCarouselTemplate{
-					Columns: funk.Map(
-						selectedUserTweets.Tweets,
-						func(tweet TweetData) *linebot.ImageCarouselColumn {
-							return GenerateGraphicMessage(selectedUserTweets.Name, tweet)
-						},
-					).([]*linebot.ImageCarouselColumn),
-				},
-			)
+			message := GenerateGraphicMessage(selectedUserTweets)
 
-			if _, err := client.ReplyMessage(event.ReplyToken, message).Do(); err != nil {
+			replyMessageCall := client.ReplyMessage(event.ReplyToken, message)
+
+			if _, err := replyMessageCall.Do(); err != nil {
 			}
 		} else if qs.Get("graphics") != "" && qs.Get("tweetId") != "" {
 			selectedTwitterUser := qs.Get("graphics")
-			selectedTweetId := qs.Get("tweetId")
+			selectedTweetID := qs.Get("tweetId")
 			selectedUserTweets := funk.Find(cache.TweetList, func(userTweets UserTweets) bool {
 				return userTweets.Name == selectedTwitterUser
 			}).(UserTweets)
 			selectedTweet := funk.Find(selectedUserTweets.Tweets, func(tweet TweetData) bool {
-				return tweet.Id == selectedTweetId
+				return tweet.ID == selectedTweetID
 			}).(TweetData)
 
 			replyMessageCall := client.ReplyMessage(
