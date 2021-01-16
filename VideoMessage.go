@@ -17,20 +17,22 @@ type PastTime struct {
 
 // GenerateVideoChannelsMessages converts channels to LINE quick reply messages
 func GenerateVideoChannelsMessages(channels []Channel) []linebot.SendingMessage {
+	quickReplyItems := funk.Map(channels, func(channel Channel) *linebot.QuickReplyButton {
+		return linebot.NewQuickReplyButton(
+			"",
+			&linebot.PostbackAction{
+				Label:       channel.Name,
+				Data:        fmt.Sprintf("channel=%s", channel.Name),
+				DisplayText: fmt.Sprintf("%s 的影片", channel.Name),
+			},
+		)
+	}).([]*linebot.QuickReplyButton)
+
 	return []linebot.SendingMessage{
 		linebot.NewTextMessage(
 			"你想要撥放誰的影片？",
 		).WithQuickReplies(
-			linebot.NewQuickReplyItems(
-				linebot.NewQuickReplyButton(
-					"",
-					&linebot.PostbackAction{
-						Label:       channels[0].Name,
-						Data:        fmt.Sprintf("channel=%s", channels[0].Name),
-						DisplayText: fmt.Sprintf("%s 的影片", channels[0].Name),
-					},
-				),
-			),
+			linebot.NewQuickReplyItems(quickReplyItems...),
 		),
 	}
 }
