@@ -65,11 +65,28 @@ type UserTweets struct {
 	Tweets []TweetData `json:"tweets"`
 }
 
+// Video is pre-processing data from YouTube API
+type Video struct {
+	Title        string `json:"title"`
+	URL          string `json:"url"`
+	Description  string `json:"description"`
+	PublishedAt  string `json:"publishedAt"`
+	ThumbnailUrl string `json:"thumbnailUrl"`
+	ChannelTitle string `json:"channelTitle"`
+}
+
+// Channel is pre-processing data from YouTube API
+type Channel struct {
+	Name   string  `json:"name"`
+	Videos []Video `json:"videos"`
+}
+
 // DataCache has all remote data and last updated time
 type DataCache struct {
 	RaidBosses []RaidBoss
 	GameEvents []GameEvent
 	TweetList  []UserTweets
+	Channels   []Channel
 	UpdatedAt  time.Time
 }
 
@@ -130,6 +147,25 @@ func LoadTweetList() []UserTweets {
 	return []UserTweets{}
 }
 
+// LoadChannels load data from remote JSON
+func LoadChannels() []Channel {
+	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-youtuber/channels.json")
+
+	if fetchErr == nil {
+		defer resp.Body.Close()
+		bodyBuf, readErr := ioutil.ReadAll(resp.Body)
+
+		if readErr == nil {
+			channels := []Channel{}
+			json.Unmarshal(bodyBuf, &channels)
+
+			return channels
+		}
+	}
+
+	return []Channel{}
+}
+
 // FilterdRaidBosses filters raid bosses by specified tier
 func FilterdRaidBosses(raidBosses []RaidBoss, raidTier string) []RaidBoss {
 	return funk.Filter(raidBosses, func(raidBoss RaidBoss) bool {
@@ -172,12 +208,20 @@ func FindTweet(tweets []TweetData, tweetID string) TweetData {
 	}).(TweetData)
 }
 
+// FindChannel finds channel by specified channel name
+func FindChannel(channels []Channel, channelName string) Channel {
+	return funk.Find(channels, func(channel Channel) bool {
+		return channel.Name == channelName
+	}).(Channel)
+}
+
 // GetCache stores data from remote
 func GetCache() *DataCache {
 	return &DataCache{
 		RaidBosses: []RaidBoss{},
 		GameEvents: []GameEvent{},
 		TweetList:  []UserTweets{},
+		Channels:   []Channel{},
 		UpdatedAt:  time.Now().AddDate(0, 0, -1),
 	}
 }

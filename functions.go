@@ -47,6 +47,7 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 		cache.RaidBosses = LoadRaidBosses()
 		cache.GameEvents = LoadGameEvents()
 		cache.TweetList = LoadTweetList()
+		cache.Channels = LoadChannels()
 		cache.UpdatedAt = time.Now()
 	}
 
@@ -83,6 +84,22 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 		selectedUserTweets := FindUserTweets(cache.TweetList, selectedTwitterUser)
 		selectedTweet := FindTweet(selectedUserTweets.Tweets, selectedTweetID)
 		messages := GenerateGraphicDetailMessages(selectedTweet, selectedTwitterUser)
+
+		replyMessageCall := client.ReplyMessage(replyToken, messages...)
+
+		if _, err := replyMessageCall.Do(); err != nil {
+		}
+	} else if qs.Get("channels") != "" {
+		messages := GenerateVideoChannelsMessages(cache.Channels)
+
+		replyMessageCall := client.ReplyMessage(replyToken, messages...)
+
+		if _, err := replyMessageCall.Do(); err != nil {
+		}
+	} else if qs.Get("channel") != "" {
+		selectedChannelName := qs.Get("channel")
+		selectedChannel := FindChannel(cache.Channels, selectedChannelName)
+		messages := GenerateVideosMessages(selectedChannel)
 
 		replyMessageCall := client.ReplyMessage(replyToken, messages...)
 
