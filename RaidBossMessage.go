@@ -32,6 +32,93 @@ func GenerateRaidBossBubbleMessage(raidBoss RaidBoss) *linebot.BubbleContainer {
 	minFlex := 1
 	withoutFlex := 0
 
+	nameContents := func() []linebot.FlexComponent {
+		title := raidBoss.Name
+
+		if raidBoss.ShinyAvailable {
+			title += " ✨"
+		}
+
+		results := []linebot.FlexComponent{
+			&linebot.TextComponent{
+				Type: linebot.FlexComponentTypeText,
+				Text: title,
+				Size: linebot.FlexTextSizeTypeLg,
+				Flex: &maxFlex,
+			},
+			&linebot.ImageComponent{
+				Type:  linebot.FlexComponentTypeImage,
+				Size:  "20px",
+				URL:   raidBoss.TypeURLs[0],
+				Align: linebot.FlexComponentAlignTypeEnd,
+				Flex:  &minFlex,
+			},
+		}
+
+		if len(raidBoss.TypeURLs) > 1 {
+			results = append(results, &linebot.ImageComponent{
+				Type:  linebot.FlexComponentTypeImage,
+				Size:  "20px",
+				URL:   raidBoss.TypeURLs[1],
+				Align: linebot.FlexComponentAlignTypeEnd,
+				Flex:  &minFlex,
+			})
+		}
+
+		return results
+	}()
+
+	boostedCPContents := func() []linebot.FlexComponent {
+		results := []linebot.FlexComponent{
+			// Empty text for padding.
+			&linebot.TextComponent{
+				Type:  linebot.FlexComponentTypeText,
+				Text:  "_",
+				Size:  linebot.FlexTextSizeTypeLg,
+				Flex:  &maxFlex,
+				Color: "#FFFFFF",
+			},
+			&linebot.ImageComponent{
+				Type:  linebot.FlexComponentTypeImage,
+				Size:  "20px",
+				URL:   raidBoss.BoostedWeatherURLs[0],
+				Align: linebot.FlexComponentAlignTypeEnd,
+				Flex:  &withoutFlex,
+			},
+		}
+
+		if len(raidBoss.BoostedWeatherURLs) > 1 {
+			results = append(results, &linebot.ImageComponent{
+				Type:  linebot.FlexComponentTypeImage,
+				Size:  "20px",
+				URL:   raidBoss.BoostedWeatherURLs[1],
+				Align: linebot.FlexComponentAlignTypeEnd,
+				Flex:  &withoutFlex,
+			})
+		}
+
+		results = append(
+			results,
+			// Empty text for padding.
+			&linebot.TextComponent{
+				Type:  linebot.FlexComponentTypeText,
+				Text:  "_",
+				Size:  linebot.FlexTextSizeTypeLg,
+				Flex:  &withoutFlex,
+				Color: "#FFFFFF",
+			},
+			&linebot.TextComponent{
+				Type:  linebot.FlexComponentTypeText,
+				Text:  fmt.Sprintf("CP: %d - %d", raidBoss.BoostedCP.Min, raidBoss.BoostedCP.Max),
+				Color: "#6C757D",
+				Flex:  &withoutFlex,
+				Align: linebot.FlexComponentAlignTypeEnd,
+			},
+		)
+
+		return results
+	}()
+
 	return &linebot.BubbleContainer{
 		Type: linebot.FlexContainerTypeBubble,
 		Size: linebot.FlexBubbleSizeTypeKilo,
@@ -51,35 +138,27 @@ func GenerateRaidBossBubbleMessage(raidBoss RaidBoss) *linebot.BubbleContainer {
 					},
 				},
 				&linebot.BoxComponent{
-					Type:   linebot.FlexComponentTypeBox,
-					Layout: linebot.FlexBoxLayoutTypeHorizontal,
-					Contents: append(
-						[]linebot.FlexComponent{
-							&linebot.TextComponent{
-								Type: linebot.FlexComponentTypeText,
-								Text: raidBoss.Name,
-								Size: linebot.FlexTextSizeTypeLg,
-								Flex: &maxFlex,
-							},
-						},
-						funk.Map(raidBoss.TypeURLs, func(typeURL string) *linebot.ImageComponent {
-							return &linebot.ImageComponent{
-								Type:  linebot.FlexComponentTypeImage,
-								Size:  "20px",
-								URL:   typeURL,
-								Align: linebot.FlexComponentAlignTypeEnd,
-								Flex:  &minFlex,
-							}
-						}).([]linebot.FlexComponent)...,
-					),
+					Type:     linebot.FlexComponentTypeBox,
+					Layout:   linebot.FlexBoxLayoutTypeHorizontal,
+					Contents: nameContents,
 				},
-				&linebot.SpacerComponent{
-					Type: linebot.FlexComponentTypeSeparator,
+				&linebot.SeparatorComponent{
+					Type:   linebot.FlexComponentTypeSeparator,
+					Color:  "#CDCDCD",
+					Margin: linebot.FlexComponentMarginTypeXs,
 				},
 				&linebot.BoxComponent{
 					Type:   linebot.FlexComponentTypeBox,
 					Layout: linebot.FlexBoxLayoutTypeHorizontal,
 					Contents: []linebot.FlexComponent{
+						// Empty text for padding.
+						&linebot.TextComponent{
+							Type:  linebot.FlexComponentTypeText,
+							Text:  "_",
+							Size:  linebot.FlexTextSizeTypeLg,
+							Flex:  &maxFlex,
+							Color: "#FFFFFF",
+						},
 						&linebot.TextComponent{
 							Type:  linebot.FlexComponentTypeText,
 							Text:  fmt.Sprintf("CP: %d - %d", raidBoss.CP.Min, raidBoss.CP.Max),
@@ -90,26 +169,9 @@ func GenerateRaidBossBubbleMessage(raidBoss RaidBoss) *linebot.BubbleContainer {
 					},
 				},
 				&linebot.BoxComponent{
-					Type:   linebot.FlexComponentTypeBox,
-					Layout: linebot.FlexBoxLayoutTypeHorizontal,
-					Contents: append(
-						funk.Map(raidBoss.BoostedWeatherURLs, func(boostedWeatherURL string) *linebot.ImageComponent {
-							return &linebot.ImageComponent{
-								Type:  linebot.FlexComponentTypeImage,
-								Size:  "20px",
-								URL:   boostedWeatherURL,
-								Align: linebot.FlexComponentAlignTypeEnd,
-								Flex:  &withoutFlex,
-							}
-						}).([]linebot.FlexComponent),
-						&linebot.TextComponent{
-							Type:  linebot.FlexComponentTypeText,
-							Text:  fmt.Sprintf("CP: %d - %d", raidBoss.BoostedCP.Min, raidBoss.BoostedCP.Max),
-							Color: "#6C757D",
-							Flex:  &withoutFlex,
-							Align: linebot.FlexComponentAlignTypeEnd,
-						},
-					),
+					Type:     linebot.FlexComponentTypeBox,
+					Layout:   linebot.FlexBoxLayoutTypeHorizontal,
+					Contents: boostedCPContents,
 				},
 			},
 		},
