@@ -98,7 +98,7 @@ func GenerateVideoBubbleMessage(video Video) *linebot.BubbleContainer {
 		Hero: &linebot.ImageComponent{
 			Type:        linebot.FlexComponentTypeImage,
 			Size:        linebot.FlexImageSizeTypeFull,
-			URL:         video.ThumbnailUrl,
+			URL:         video.ThumbnailURL,
 			AspectRatio: "760:572",
 		},
 		Body: &linebot.BoxComponent{

@@ -71,14 +71,17 @@ type Video struct {
 	URL          string `json:"url"`
 	Description  string `json:"description"`
 	PublishedAt  string `json:"publishedAt"`
-	ThumbnailUrl string `json:"thumbnailUrl"`
+	ThumbnailURL string `json:"thumbnailUrl"`
 	ChannelTitle string `json:"channelTitle"`
 }
 
 // Channel is pre-processing data from YouTube API
 type Channel struct {
-	Name   string  `json:"name"`
-	Videos []Video `json:"videos"`
+	Name            string  `json:"title"`
+	ThumbnailURL    string  `json:"thumbnailUrl"`
+	ViewCount       int     `json:"viewCount"`
+	SubscriberCount int     `json:"subscriberCount"`
+	Videos          []Video `json:"videos"`
 }
 
 // DataCache has all remote data and last updated time
