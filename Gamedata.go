@@ -14,6 +14,7 @@ type RaidBoss struct {
 	Tier           string   `json:"tier"`
 	No             int      `json:"no"`
 	Name           string   `json:"name"`
+	OriginalName   string   `json:"originalName"`
 	ImageURL       string   `json:"imageUrl"`
 	ShinyAvailable bool     `json:"shinyAvailable"`
 	Types          []string `json:"types"`
@@ -28,6 +29,20 @@ type RaidBoss struct {
 	} `json:"boostedCp"`
 	BoostedWeathers    []string `json:"boostedWeathers"`
 	BoostedWeatherURLs []string `json:"boostedWeatherUrls"`
+}
+
+// Egg is pre-processing data from LeekDuck website
+type Egg struct {
+	No             int    `json:"no"`
+	Name           string `json:"name"`
+	OriginalName   string `json:"originalName"`
+	Category       string `json:"category"`
+	ImageURL       string `json:"imageUrl"`
+	ShinyAvailable bool   `json:"shinyAvailable"`
+	CP             struct {
+		Min int `json:"min"`
+		Max int `json:"max"`
+	} `json:"cp"`
 }
 
 // GameEvent is pre-processing data from LeekDuck website
@@ -87,6 +102,7 @@ type Channel struct {
 // DataCache has all remote data and last updated time
 type DataCache struct {
 	RaidBosses []RaidBoss
+	Eggs       []Egg
 	GameEvents []GameEvent
 	TweetList  []UserTweets
 	Channels   []Channel
@@ -95,7 +111,7 @@ type DataCache struct {
 
 // LoadRaidBosses load data from remote JSON
 func LoadRaidBosses() []RaidBoss {
-	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-leekduck/raid-bosses.json")
+	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-leekduck/raid-bosses.min.json")
 
 	if fetchErr == nil {
 		defer resp.Body.Close()
@@ -112,9 +128,28 @@ func LoadRaidBosses() []RaidBoss {
 	return []RaidBoss{}
 }
 
+// LoadEggs load data from remote JSON
+func LoadEggs() []Egg {
+	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-leekduck/eggs.min.json")
+
+	if fetchErr == nil {
+		defer resp.Body.Close()
+		bodyBuf, readErr := ioutil.ReadAll(resp.Body)
+
+		if readErr == nil {
+			eggs := []Egg{}
+			json.Unmarshal(bodyBuf, &eggs)
+
+			return eggs
+		}
+	}
+
+	return []Egg{}
+}
+
 // LoadGameEvents load data from remote JSON
 func LoadGameEvents() []GameEvent {
-	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-leekduck/events.json")
+	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-leekduck/events.min.json")
 
 	if fetchErr == nil {
 		defer resp.Body.Close()
@@ -133,7 +168,7 @@ func LoadGameEvents() []GameEvent {
 
 // LoadTweetList load data from remote JSON
 func LoadTweetList() []UserTweets {
-	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-tweets/tweet-list.json")
+	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-tweets/tweet-list.min.json")
 
 	if fetchErr == nil {
 		defer resp.Body.Close()
@@ -152,7 +187,7 @@ func LoadTweetList() []UserTweets {
 
 // LoadChannels load data from remote JSON
 func LoadChannels() []Channel {
-	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-youtuber/channels.json")
+	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-youtuber/channels.min.json")
 
 	if fetchErr == nil {
 		defer resp.Body.Close()
@@ -174,6 +209,13 @@ func FilterdRaidBosses(raidBosses []RaidBoss, raidTier string) []RaidBoss {
 	return funk.Filter(raidBosses, func(raidBoss RaidBoss) bool {
 		return raidBoss.Tier == raidTier
 	}).([]RaidBoss)
+}
+
+// FilterdEggs filters eggs by specified category
+func FilterdEggs(eggs []Egg, eggCategory string) []Egg {
+	return funk.Filter(eggs, func(egg Egg) bool {
+		return egg.Category == eggCategory
+	}).([]Egg)
 }
 
 // FilterGameEvents filters game events by specified label
@@ -222,6 +264,7 @@ func FindChannel(channels []Channel, channelName string) Channel {
 func GetCache() *DataCache {
 	return &DataCache{
 		RaidBosses: []RaidBoss{},
+		Eggs:       []Egg{},
 		GameEvents: []GameEvent{},
 		TweetList:  []UserTweets{},
 		Channels:   []Channel{},

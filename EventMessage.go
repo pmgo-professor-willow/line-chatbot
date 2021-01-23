@@ -32,6 +32,7 @@ func GenerateGameEventMessages(gameEvents []GameEvent) []linebot.SendingMessage 
 
 // GenerateEventBubbleMessage converts game event to LINE bubble message
 func GenerateEventBubbleMessage(event GameEvent) *linebot.BubbleContainer {
+	maxFlex := 10
 	withoutFlex := 0
 	remainingText := "尚未公布結束時間"
 
@@ -76,6 +77,14 @@ func GenerateEventBubbleMessage(event GameEvent) *linebot.BubbleContainer {
 					Type:   linebot.FlexComponentTypeBox,
 					Layout: linebot.FlexBoxLayoutTypeHorizontal,
 					Contents: []linebot.FlexComponent{
+						// Empty text for padding.
+						&linebot.TextComponent{
+							Type:  linebot.FlexComponentTypeText,
+							Text:  "_",
+							Size:  linebot.FlexTextSizeTypeLg,
+							Flex:  &maxFlex,
+							Color: "#FFFFFF",
+						},
 						&linebot.TextComponent{
 							Type:  linebot.FlexComponentTypeText,
 							Text:  remainingText,

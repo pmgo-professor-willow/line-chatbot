@@ -45,6 +45,7 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 	// Refresh cache about data from cloud.
 	if time.Since(cache.UpdatedAt).Minutes() > 1 {
 		cache.RaidBosses = LoadRaidBosses()
+		cache.Eggs = LoadEggs()
 		cache.GameEvents = LoadGameEvents()
 		cache.TweetList = LoadTweetList()
 		cache.Channels = LoadChannels()
@@ -55,6 +56,15 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 		selectedRaidTier := qs.Get("raidTier")
 		selectedRaidBosses := FilterdRaidBosses(cache.RaidBosses, selectedRaidTier)
 		messages := GenerateRaidBossMessages(selectedRaidBosses, selectedRaidTier)
+
+		replyMessageCall := client.ReplyMessage(replyToken, messages...)
+
+		if _, err := replyMessageCall.Do(); err != nil {
+		}
+	} else if qs.Get("egg") != "" {
+		selectedEggCategory := qs.Get("egg")
+		selectedEggs := FilterdEggs(cache.Eggs, selectedEggCategory)
+		messages := GenerateEggMessages(selectedEggs, selectedEggCategory)
 
 		replyMessageCall := client.ReplyMessage(replyToken, messages...)
 
