@@ -41,6 +41,7 @@ func WebhookFunction(w http.ResponseWriter, req *http.Request) {
 // PostbackReply will reply messages by postback
 func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 	cache := GetCache()
+	messages := []linebot.SendingMessage{}
 
 	// Refresh cache about data from cloud.
 	if time.Since(cache.UpdatedAt).Minutes() > 1 {
@@ -55,62 +56,34 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 	if qs.Get("raidTier") != "" {
 		selectedRaidTier := qs.Get("raidTier")
 		selectedRaidBosses := FilterdRaidBosses(cache.RaidBosses, selectedRaidTier)
-		messages := GenerateRaidBossMessages(selectedRaidBosses, selectedRaidTier)
-
-		replyMessageCall := client.ReplyMessage(replyToken, messages...)
-
-		if _, err := replyMessageCall.Do(); err != nil {
-		}
+		messages = GenerateRaidBossMessages(selectedRaidBosses, selectedRaidTier)
 	} else if qs.Get("egg") != "" {
 		selectedEggCategory := qs.Get("egg")
 		selectedEggs := FilterdEggs(cache.Eggs, selectedEggCategory)
-		messages := GenerateEggMessages(selectedEggs, selectedEggCategory)
-
-		replyMessageCall := client.ReplyMessage(replyToken, messages...)
-
-		if _, err := replyMessageCall.Do(); err != nil {
-		}
+		messages = GenerateEggMessages(selectedEggs, selectedEggCategory)
 	} else if qs.Get("event") != "" {
 		selectedEventLabel := qs.Get("event")
 		filteredGameEvents := FilterGameEvents(cache.GameEvents, selectedEventLabel)
-		messages := GenerateGameEventMessages(filteredGameEvents)
-
-		replyMessageCall := client.ReplyMessage(replyToken, messages...)
-
-		if _, err := replyMessageCall.Do(); err != nil {
-		}
+		messages = GenerateGameEventMessages(filteredGameEvents)
 	} else if qs.Get("graphics") != "" && qs.Get("tweetId") == "" {
 		selectedTwitterUser := qs.Get("graphics")
 		selectedUserTweets := FindUserTweets(cache.TweetList, selectedTwitterUser)
-		messages := GenerateGraphicCatalogMessages(selectedUserTweets)
-
-		replyMessageCall := client.ReplyMessage(replyToken, messages...)
-
-		if _, err := replyMessageCall.Do(); err != nil {
-		}
+		messages = GenerateGraphicCatalogMessages(selectedUserTweets)
 	} else if qs.Get("graphics") != "" && qs.Get("tweetId") != "" {
 		selectedTwitterUser := qs.Get("graphics")
 		selectedTweetID := qs.Get("tweetId")
 		selectedUserTweets := FindUserTweets(cache.TweetList, selectedTwitterUser)
 		selectedTweet := FindTweet(selectedUserTweets.Tweets, selectedTweetID)
-		messages := GenerateGraphicDetailMessages(selectedTweet, selectedTwitterUser)
-
-		replyMessageCall := client.ReplyMessage(replyToken, messages...)
-
-		if _, err := replyMessageCall.Do(); err != nil {
-		}
+		messages = GenerateGraphicDetailMessages(selectedTweet, selectedTwitterUser)
 	} else if qs.Get("channels") != "" {
-		messages := GenerateVideoChannelsMessages(cache.Channels)
-
-		replyMessageCall := client.ReplyMessage(replyToken, messages...)
-
-		if _, err := replyMessageCall.Do(); err != nil {
-		}
+		messages = GenerateVideoChannelsMessages(cache.Channels)
 	} else if qs.Get("channel") != "" {
 		selectedChannelName := qs.Get("channel")
 		selectedChannel := FindChannel(cache.Channels, selectedChannelName)
-		messages := GenerateVideosMessages(selectedChannel)
+		messages = GenerateVideosMessages(selectedChannel)
+	}
 
+	if len(messages) > 0 {
 		replyMessageCall := client.ReplyMessage(replyToken, messages...)
 
 		if _, err := replyMessageCall.Do(); err != nil {
