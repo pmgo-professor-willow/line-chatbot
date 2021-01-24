@@ -45,6 +45,27 @@ type Egg struct {
 	} `json:"cp"`
 }
 
+// ResearchRewardPokemon is pre-processing data from The Silph Road website
+type ResearchRewardPokemon struct {
+	No             int    `json:"no"`
+	Name           string `json:"name"`
+	OriginalName   string `json:"originalName"`
+	ShinyAvailable bool   `json:"shinyAvailable"`
+	ImageURL       string `json:"imageUrl"`
+	CP             struct {
+		Min int `json:"min"`
+		Max int `json:"max"`
+	} `json:"cp"`
+}
+
+// Research is pre-processing data from The Silph Road website
+type Research struct {
+	Description         string                  `json:"description"`
+	OriginalDescription string                  `json:"originalDescription"`
+	Category            string                  `json:"category"`
+	RewardPokemons      []ResearchRewardPokemon `json:"rewardPokemons"`
+}
+
 // GameEvent is pre-processing data from LeekDuck website
 type GameEvent struct {
 	Title        string `json:"title"`
@@ -103,6 +124,7 @@ type Channel struct {
 type DataCache struct {
 	RaidBosses []RaidBoss
 	Eggs       []Egg
+	Researches []Research
 	GameEvents []GameEvent
 	TweetList  []UserTweets
 	Channels   []Channel
@@ -145,6 +167,25 @@ func LoadEggs() []Egg {
 	}
 
 	return []Egg{}
+}
+
+// LoadResearches load data from remote JSON
+func LoadResearches() []Research {
+	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-thesilphroad/researches.min.json")
+
+	if fetchErr == nil {
+		defer resp.Body.Close()
+		bodyBuf, readErr := ioutil.ReadAll(resp.Body)
+
+		if readErr == nil {
+			researchs := []Research{}
+			json.Unmarshal(bodyBuf, &researchs)
+
+			return researchs
+		}
+	}
+
+	return []Research{}
 }
 
 // LoadGameEvents load data from remote JSON
@@ -265,6 +306,7 @@ func GetCache() *DataCache {
 	return &DataCache{
 		RaidBosses: []RaidBoss{},
 		Eggs:       []Egg{},
+		Researches: []Research{},
 		GameEvents: []GameEvent{},
 		TweetList:  []UserTweets{},
 		Channels:   []Channel{},

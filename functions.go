@@ -47,6 +47,7 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 	if time.Since(cache.UpdatedAt).Minutes() > 1 {
 		cache.RaidBosses = LoadRaidBosses()
 		cache.Eggs = LoadEggs()
+		cache.Researches = LoadResearches()
 		cache.GameEvents = LoadGameEvents()
 		cache.TweetList = LoadTweetList()
 		cache.Channels = LoadChannels()
@@ -61,6 +62,8 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 		selectedEggCategory := qs.Get("egg")
 		selectedEggs := FilterdEggs(cache.Eggs, selectedEggCategory)
 		messages = GenerateEggMessages(selectedEggs, selectedEggCategory)
+	} else if qs.Get("researches") != "" {
+		messages = GenerateResearchMessages(cache.Researches)
 	} else if qs.Get("event") != "" {
 		selectedEventLabel := qs.Get("event")
 		filteredGameEvents := FilterGameEvents(cache.GameEvents, selectedEventLabel)
@@ -87,6 +90,7 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 		replyMessageCall := client.ReplyMessage(replyToken, messages...)
 
 		if _, err := replyMessageCall.Do(); err != nil {
+			fmt.Println(err)
 		}
 	}
 }
