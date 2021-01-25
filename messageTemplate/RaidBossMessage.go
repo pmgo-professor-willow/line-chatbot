@@ -1,18 +1,20 @@
-package functions
+package messageTemplate
 
 import (
 	"fmt"
 	"strings"
+
+	gd "pmgo-professor-willow/lineChatbot/gamedata"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/thoas/go-funk"
 )
 
 // GenerateRaidBossMessages converts raid bosses to LINE flex messages
-func GenerateRaidBossMessages(raidBosses []RaidBoss, raidTier string) []linebot.SendingMessage {
-	bossChunks := funk.Chunk(raidBosses, 10).([][]RaidBoss)
+func GenerateRaidBossMessages(raidBosses []gd.RaidBoss, raidTier string) []linebot.SendingMessage {
+	bossChunks := funk.Chunk(raidBosses, 10).([][]gd.RaidBoss)
 
-	return funk.Map(bossChunks, func(bossChunk []RaidBoss) linebot.SendingMessage {
+	return funk.Map(bossChunks, func(bossChunk []gd.RaidBoss) linebot.SendingMessage {
 		return linebot.NewFlexMessage(
 			fmt.Sprintf("%s 星團體戰列表", raidTier),
 			&linebot.CarouselContainer{
@@ -27,7 +29,7 @@ func GenerateRaidBossMessages(raidBosses []RaidBoss, raidTier string) []linebot.
 }
 
 // GenerateRaidBossBubbleMessage converts raid boss to LINE bubble message
-func GenerateRaidBossBubbleMessage(raidBoss RaidBoss) *linebot.BubbleContainer {
+func GenerateRaidBossBubbleMessage(raidBoss gd.RaidBoss) *linebot.BubbleContainer {
 	maxFlex := 10
 	minFlex := 1
 	withoutFlex := 0

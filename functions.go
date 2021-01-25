@@ -7,6 +7,9 @@ import (
 	"os"
 	"time"
 
+	gd "pmgo-professor-willow/lineChatbot/gamedata"
+	mt "pmgo-professor-willow/lineChatbot/messageTemplate"
+
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
@@ -40,50 +43,50 @@ func WebhookFunction(w http.ResponseWriter, req *http.Request) {
 
 // PostbackReply will reply messages by postback
 func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
-	cache := GetCache()
+	cache := gd.GetCache()
 	messages := []linebot.SendingMessage{}
 
 	// Refresh cache about data from cloud.
 	if time.Since(cache.UpdatedAt).Minutes() > 1 {
-		cache.RaidBosses = LoadRaidBosses()
-		cache.Eggs = LoadEggs()
-		cache.Researches = LoadResearches()
-		cache.GameEvents = LoadGameEvents()
-		cache.TweetList = LoadTweetList()
-		cache.Channels = LoadChannels()
+		cache.RaidBosses = gd.LoadRaidBosses()
+		cache.Eggs = gd.LoadEggs()
+		cache.Researches = gd.LoadResearches()
+		cache.Events = gd.LoadEvents()
+		cache.TweetList = gd.LoadTweetList()
+		cache.Channels = gd.LoadChannels()
 		cache.UpdatedAt = time.Now()
 	}
 
 	if qs.Get("raidTier") != "" {
 		selectedRaidTier := qs.Get("raidTier")
-		selectedRaidBosses := FilterdRaidBosses(cache.RaidBosses, selectedRaidTier)
-		messages = GenerateRaidBossMessages(selectedRaidBosses, selectedRaidTier)
+		selectedRaidBosses := gd.FilterdRaidBosses(cache.RaidBosses, selectedRaidTier)
+		messages = mt.GenerateRaidBossMessages(selectedRaidBosses, selectedRaidTier)
 	} else if qs.Get("egg") != "" {
 		selectedEggCategory := qs.Get("egg")
-		selectedEggs := FilterdEggs(cache.Eggs, selectedEggCategory)
-		messages = GenerateEggMessages(selectedEggs, selectedEggCategory)
+		selectedEggs := gd.FilterdEggs(cache.Eggs, selectedEggCategory)
+		messages = mt.GenerateEggMessages(selectedEggs, selectedEggCategory)
 	} else if qs.Get("researches") != "" {
-		messages = GenerateResearchMessages(cache.Researches)
+		messages = mt.GenerateResearchMessages(cache.Researches)
 	} else if qs.Get("event") != "" {
 		selectedEventLabel := qs.Get("event")
-		filteredGameEvents := FilterGameEvents(cache.GameEvents, selectedEventLabel)
-		messages = GenerateGameEventMessages(filteredGameEvents)
+		filteredEvents := gd.FilterEvents(cache.Events, selectedEventLabel)
+		messages = mt.GenerateEventMessages(filteredEvents)
 	} else if qs.Get("graphics") != "" && qs.Get("tweetId") == "" {
 		selectedTwitterUser := qs.Get("graphics")
-		selectedUserTweets := FindUserTweets(cache.TweetList, selectedTwitterUser)
-		messages = GenerateGraphicCatalogMessages(selectedUserTweets)
+		selectedUserTweets := gd.FindUserTweets(cache.TweetList, selectedTwitterUser)
+		messages = mt.GenerateGraphicCatalogMessages(selectedUserTweets)
 	} else if qs.Get("graphics") != "" && qs.Get("tweetId") != "" {
 		selectedTwitterUser := qs.Get("graphics")
 		selectedTweetID := qs.Get("tweetId")
-		selectedUserTweets := FindUserTweets(cache.TweetList, selectedTwitterUser)
-		selectedTweet := FindTweet(selectedUserTweets.Tweets, selectedTweetID)
-		messages = GenerateGraphicDetailMessages(selectedTweet, selectedTwitterUser)
+		selectedUserTweets := gd.FindUserTweets(cache.TweetList, selectedTwitterUser)
+		selectedTweet := gd.FindTweet(selectedUserTweets.Tweets, selectedTweetID)
+		messages = mt.GenerateGraphicDetailMessages(selectedTweet, selectedTwitterUser)
 	} else if qs.Get("channels") != "" {
-		messages = GenerateVideoChannelsMessages(cache.Channels)
+		messages = mt.GenerateVideoChannelsMessages(cache.Channels)
 	} else if qs.Get("channel") != "" {
 		selectedChannelName := qs.Get("channel")
-		selectedChannel := FindChannel(cache.Channels, selectedChannelName)
-		messages = GenerateVideosMessages(selectedChannel)
+		selectedChannel := gd.FindChannel(cache.Channels, selectedChannelName)
+		messages = mt.GenerateVideosMessages(selectedChannel)
 	}
 
 	if len(messages) > 0 {

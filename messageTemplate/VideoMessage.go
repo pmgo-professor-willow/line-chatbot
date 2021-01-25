@@ -1,8 +1,10 @@
-package functions
+package messageTemplate
 
 import (
 	"fmt"
 	"time"
+
+	gd "pmgo-professor-willow/lineChatbot/gamedata"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/thoas/go-funk"
@@ -16,8 +18,8 @@ type PastTime struct {
 }
 
 // GenerateVideoChannelsMessages converts channels to LINE quick reply messages
-func GenerateVideoChannelsMessages(channels []Channel) []linebot.SendingMessage {
-	quickReplyItems := funk.Map(channels, func(channel Channel) *linebot.QuickReplyButton {
+func GenerateVideoChannelsMessages(channels []gd.Channel) []linebot.SendingMessage {
+	quickReplyItems := funk.Map(channels, func(channel gd.Channel) *linebot.QuickReplyButton {
 		return linebot.NewQuickReplyButton(
 			"",
 			&linebot.PostbackAction{
@@ -38,10 +40,10 @@ func GenerateVideoChannelsMessages(channels []Channel) []linebot.SendingMessage 
 }
 
 // GenerateVideosMessages converts user tweets to LINE template messages
-func GenerateVideosMessages(channel Channel) []linebot.SendingMessage {
-	videoChunks := funk.Chunk(channel.Videos, 10).([][]Video)
+func GenerateVideosMessages(channel gd.Channel) []linebot.SendingMessage {
+	videoChunks := funk.Chunk(channel.Videos, 10).([][]gd.Video)
 
-	return funk.Map(videoChunks, func(videoChunk []Video) linebot.SendingMessage {
+	return funk.Map(videoChunks, func(videoChunk []gd.Video) linebot.SendingMessage {
 		return linebot.NewFlexMessage(
 			fmt.Sprintf("%s 的 Pokemon GO 影片", channel.Name),
 			&linebot.CarouselContainer{
@@ -56,7 +58,7 @@ func GenerateVideosMessages(channel Channel) []linebot.SendingMessage {
 }
 
 // GenerateVideoBubbleMessage converts video to LINE bubble message
-func GenerateVideoBubbleMessage(video Video) *linebot.BubbleContainer {
+func GenerateVideoBubbleMessage(video gd.Video) *linebot.BubbleContainer {
 	minFlex := 1
 	withoutFlex := 0
 

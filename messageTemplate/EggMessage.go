@@ -1,15 +1,17 @@
-package functions
+package messageTemplate
 
 import (
 	"fmt"
 	"strings"
+
+	gd "pmgo-professor-willow/lineChatbot/gamedata"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/thoas/go-funk"
 )
 
 // GenerateEggMessages converts eggs to LINE flex messages
-func GenerateEggMessages(eggs []Egg, eggCategory string) []linebot.SendingMessage {
+func GenerateEggMessages(eggs []gd.Egg, eggCategory string) []linebot.SendingMessage {
 	return []linebot.SendingMessage{
 		linebot.NewFlexMessage(
 			fmt.Sprintf("%s 蛋可孵化出的寶可夢", eggCategory),
@@ -24,8 +26,8 @@ func GenerateEggMessages(eggs []Egg, eggCategory string) []linebot.SendingMessag
 }
 
 // GenerateEggBubbleMessage converts eggs to LINE bubble message
-func GenerateEggBubbleMessage(eggs []Egg, eggCategory string) *linebot.BubbleContainer {
-	eggRows := funk.Chunk(eggs, 3).([][]Egg)
+func GenerateEggBubbleMessage(eggs []gd.Egg, eggCategory string) *linebot.BubbleContainer {
+	eggRows := funk.Chunk(eggs, 3).([][]gd.Egg)
 
 	return &linebot.BubbleContainer{
 		Type: linebot.FlexContainerTypeBubble,
@@ -45,11 +47,11 @@ func GenerateEggBubbleMessage(eggs []Egg, eggCategory string) *linebot.BubbleCon
 		Body: &linebot.BoxComponent{
 			Type:   linebot.FlexComponentTypeBox,
 			Layout: linebot.FlexBoxLayoutTypeVertical,
-			Contents: funk.Map(eggRows, func(eggRow []Egg) linebot.FlexComponent {
+			Contents: funk.Map(eggRows, func(eggRow []gd.Egg) linebot.FlexComponent {
 				return &linebot.BoxComponent{
 					Type:   linebot.FlexComponentTypeBox,
 					Layout: linebot.FlexBoxLayoutTypeHorizontal,
-					Contents: funk.Map(eggRow, func(egg Egg) linebot.FlexComponent {
+					Contents: funk.Map(eggRow, func(egg gd.Egg) linebot.FlexComponent {
 						return &linebot.BoxComponent{
 							Type:     linebot.FlexComponentTypeBox,
 							Layout:   linebot.FlexBoxLayoutTypeVertical,
@@ -63,7 +65,7 @@ func GenerateEggBubbleMessage(eggs []Egg, eggCategory string) *linebot.BubbleCon
 }
 
 // GenerateEggFlexComponent converts eggs to LINE bubble message
-func GenerateEggFlexComponent(egg Egg) []linebot.FlexComponent {
+func GenerateEggFlexComponent(egg gd.Egg) []linebot.FlexComponent {
 	pokemonName := egg.Name
 	// Regional pokemon.
 	pokemonName = strings.Replace(pokemonName, "伽勒爾", "[伽]", 1)

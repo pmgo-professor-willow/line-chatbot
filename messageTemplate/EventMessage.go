@@ -1,8 +1,10 @@
-package functions
+package messageTemplate
 
 import (
 	"fmt"
 	"time"
+
+	gd "pmgo-professor-willow/lineChatbot/gamedata"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/thoas/go-funk"
@@ -15,11 +17,11 @@ type RemainingTime struct {
 	Minutes int
 }
 
-// GenerateGameEventMessages converts game events to LINE flex messages
-func GenerateGameEventMessages(gameEvents []GameEvent) []linebot.SendingMessage {
-	eventChunks := funk.Chunk(gameEvents, 10).([][]GameEvent)
+// GenerateEventMessages converts game events to LINE flex messages
+func GenerateEventMessages(gameEvents []gd.Event) []linebot.SendingMessage {
+	eventChunks := funk.Chunk(gameEvents, 10).([][]gd.Event)
 
-	return funk.Map(eventChunks, func(eventChunk []GameEvent) linebot.SendingMessage {
+	return funk.Map(eventChunks, func(eventChunk []gd.Event) linebot.SendingMessage {
 		return linebot.NewFlexMessage(
 			"進行中的活動",
 			&linebot.CarouselContainer{
@@ -31,7 +33,7 @@ func GenerateGameEventMessages(gameEvents []GameEvent) []linebot.SendingMessage 
 }
 
 // GenerateEventBubbleMessage converts game event to LINE bubble message
-func GenerateEventBubbleMessage(event GameEvent) *linebot.BubbleContainer {
+func GenerateEventBubbleMessage(event gd.Event) *linebot.BubbleContainer {
 	maxFlex := 10
 	withoutFlex := 0
 	remainingText := "尚未公布結束時間"

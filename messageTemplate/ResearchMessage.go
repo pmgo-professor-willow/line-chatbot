@@ -1,27 +1,29 @@
-package functions
+package messageTemplate
 
 import (
 	"fmt"
+
+	gd "pmgo-professor-willow/lineChatbot/gamedata"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/thoas/go-funk"
 )
 
 type Category string
-type ResearchCollection map[Category][]Research
+type ResearchCollection map[Category][]gd.Research
 
 // GenerateResearchMessages converts researches to LINE flex messages
-func GenerateResearchMessages(researches []Research) []linebot.SendingMessage {
-	categories := funk.Uniq(funk.Map(researches, func(research Research) Category {
+func GenerateResearchMessages(researches []gd.Research) []linebot.SendingMessage {
+	categories := funk.Uniq(funk.Map(researches, func(research gd.Research) Category {
 		return Category(research.Category)
 	})).([]Category)
 
 	collections := make(ResearchCollection)
 	// Append into collections.
 	funk.ForEach(categories, func(category Category) {
-		collections[category] = funk.Filter(researches, func(research Research) bool {
+		collections[category] = funk.Filter(researches, func(research gd.Research) bool {
 			return Category(research.Category) == category && len(research.RewardPokemons) > 0
-		}).([]Research)
+		}).([]gd.Research)
 	})
 	// Ignore empty collection.
 	categories = funk.Filter(categories, func(category Category) bool {
@@ -42,7 +44,7 @@ func GenerateResearchMessages(researches []Research) []linebot.SendingMessage {
 }
 
 // GenerateResearchBubbleMessage converts researches to LINE bubble message
-func GenerateResearchBubbleMessage(category Category, researches []Research) *linebot.BubbleContainer {
+func GenerateResearchBubbleMessage(category Category, researches []gd.Research) *linebot.BubbleContainer {
 	return &linebot.BubbleContainer{
 		Type: linebot.FlexContainerTypeBubble,
 		Size: linebot.FlexBubbleSizeTypeGiga,
@@ -74,7 +76,7 @@ func GenerateResearchBubbleMessage(category Category, researches []Research) *li
 			Type:   linebot.FlexComponentTypeBox,
 			Layout: linebot.FlexBoxLayoutTypeVertical,
 			Contents: funk.FlattenDeep(
-				funk.Map(researches, func(research Research) []linebot.FlexComponent {
+				funk.Map(researches, func(research gd.Research) []linebot.FlexComponent {
 					row := []linebot.FlexComponent{
 						&linebot.BoxComponent{
 							Type:     linebot.FlexComponentTypeBox,
@@ -104,7 +106,7 @@ func GenerateResearchBubbleMessage(category Category, researches []Research) *li
 }
 
 // GenerateResearchFlexComponent converts researches to LINE bubble message
-func GenerateResearchFlexComponent(research Research) []linebot.FlexComponent {
+func GenerateResearchFlexComponent(research gd.Research) []linebot.FlexComponent {
 	maxFlex := 5
 	minFlex := 4
 	withoutFlex := 0
