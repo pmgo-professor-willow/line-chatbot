@@ -27,6 +27,13 @@ jobs:
           go mod vendor
           ls -al
 
+      - name: Move local modules to /vendor
+        run: |
+          export MODULE_NAME=$(head -n 1 go.mod | awk -F ' ' '{print $2}')
+          mkdir -p ./vendor/$MODULE_NAME
+          mv gamedata ./vendor/$MODULE_NAME
+          mv messageTemplate ./vendor/$MODULE_NAME
+
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@master
         with:
