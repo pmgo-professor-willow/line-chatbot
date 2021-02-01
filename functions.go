@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"regexp"
 	"time"
 
 	gd "pmgo-professor-willow/lineChatbot/gamedata"
@@ -28,8 +29,24 @@ func WebhookFunction(w http.ResponseWriter, req *http.Request) {
 		case linebot.EventTypeMessage:
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
-				qs, _ := url.ParseQuery(message.Text)
-				PostbackReply(client, event.ReplyToken, qs)
+				// command: send postback message directly.
+				postbackData := regexp.MustCompile(`^/(.+)$`).FindStringSubmatch(message.Text)
+				if len(postbackData) != 0 {
+					qs, _ := url.ParseQuery(postbackData[1])
+					PostbackReply(client, event.ReplyToken, qs)
+					break
+				}
+
+				// leave meassage: send message to manager.
+				isLeaveMessage := regexp.MustCompile(`^給博士.+`).MatchString(message.Text)
+				if isLeaveMessage {
+					profile, _ := client.GetProfile(event.Source.UserID).Do()
+					PushMessageToManager(
+						client,
+						fmt.Sprintf("%s: %s", profile.DisplayName, message.Text),
+					)
+					break
+				}
 			}
 
 		case linebot.EventTypePostback:
@@ -102,5 +119,17 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 		if _, err := replyMessageCall.Do(); err != nil {
 			fmt.Println(err)
 		}
+	}
+}
+
+// PushMessageToManager will push text message to manager
+func PushMessageToManager(client *linebot.Client, messageText string) {
+	replyMessageCall := client.PushMessage(
+		os.Getenv("LINE_MANAGER_USER_ID"),
+		linebot.NewTextMessage(messageText),
+	)
+
+	if _, err := replyMessageCall.Do(); err != nil {
+		fmt.Println(err)
 	}
 }

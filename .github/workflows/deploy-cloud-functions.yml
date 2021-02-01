@@ -49,7 +49,7 @@ jobs:
             --allow-unauthenticated \
             --region asia-east2 \
             --runtime go113 \
-            --update-env-vars LINE_CHANNEL_SECRET=${{ secrets.LINE_CHANNEL_SECRET }},LINE_CHANNEL_ACCESS_TOKEN=${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }} \
+            --update-env-vars LINE_CHANNEL_SECRET=${{ secrets.LINE_CHANNEL_SECRET }},LINE_CHANNEL_ACCESS_TOKEN=${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }},LINE_MANAGER_USER_ID=${{ secrets.LINE_MANAGER_USER_ID }} \
             --memory 128MB \
             --timeout 10 \
             --clear-labels
