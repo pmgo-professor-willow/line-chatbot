@@ -87,6 +87,13 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 		selectedChannelName := qs.Get("channel")
 		selectedChannel := gd.FindChannel(cache.Channels, selectedChannelName)
 		messages = mt.GenerateVideosMessages(selectedChannel)
+	} else if qs.Get("faq") != "" {
+		selectedQuestion := qs.Get("faq")
+		if selectedQuestion == "list" {
+			messages = mt.GenerateQuestionListMessages()
+		} else {
+			messages = mt.GenerateQuestionMessages(selectedQuestion)
+		}
 	}
 
 	if len(messages) > 0 {
