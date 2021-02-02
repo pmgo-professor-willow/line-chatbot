@@ -47,3 +47,21 @@ func FilterdEggs(eggs []Egg, eggCategory string) []Egg {
 		return egg.Category == eggCategory
 	}).([]Egg)
 }
+
+func CreateDummyEgg() Egg {
+	return Egg{
+		No:             0,
+		Name:           " ",
+		OriginalName:   "",
+		Category:       "",
+		ImageURL:       "https://sample.com/dummy.png",
+		ShinyAvailable: false,
+		CP: struct {
+			Min int `json:"min"`
+			Max int `json:"max"`
+		}{
+			Max: 0,
+			Min: 0,
+		},
+	}
+}

@@ -27,7 +27,13 @@ func GenerateEggMessages(eggs []gd.Egg, eggCategory string) []linebot.SendingMes
 
 // GenerateEggBubbleMessage converts eggs to LINE bubble message
 func GenerateEggBubbleMessage(eggs []gd.Egg, eggCategory string) *linebot.BubbleContainer {
-	eggRows := funk.Chunk(eggs, 3).([][]gd.Egg)
+	columnCount := 3
+	eggsWithDummies := eggs
+	for i := 0; i < columnCount-len(eggs)%columnCount; i++ {
+		eggsWithDummies = append(eggsWithDummies, gd.CreateDummyEgg())
+	}
+
+	eggRows := funk.Chunk(eggsWithDummies, columnCount).([][]gd.Egg)
 
 	return &linebot.BubbleContainer{
 		Type: linebot.FlexContainerTypeBubble,
@@ -41,8 +47,10 @@ func GenerateEggBubbleMessage(eggs []gd.Egg, eggCategory string) *linebot.Bubble
 					Text:  fmt.Sprintf("%s 蛋可孵化出的寶可夢", eggCategory),
 					Size:  linebot.FlexTextSizeTypeLg,
 					Align: linebot.FlexComponentAlignTypeCenter,
+					Color: "#FFFFFF",
 				},
 			},
+			BackgroundColor: "#455F60",
 		},
 		Body: &linebot.BoxComponent{
 			Type:   linebot.FlexComponentTypeBox,
@@ -60,6 +68,8 @@ func GenerateEggBubbleMessage(eggs []gd.Egg, eggCategory string) *linebot.Bubble
 					}).([]linebot.FlexComponent),
 				}
 			}).([]linebot.FlexComponent),
+			BackgroundColor: "#3D4D4D",
+			Margin:          linebot.FlexComponentMarginTypeNone,
 		},
 	}
 }
@@ -87,6 +97,7 @@ func GenerateEggFlexComponent(egg gd.Egg) []linebot.FlexComponent {
 			Text:  pokemonName,
 			Size:  linebot.FlexTextSizeTypeMd,
 			Align: linebot.FlexComponentAlignTypeCenter,
+			Color: "#FFFFFF",
 		},
 	}
 }
