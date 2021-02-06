@@ -5,6 +5,7 @@ import (
 	"time"
 
 	gd "pmgo-professor-willow/lineChatbot/gamedata"
+	"pmgo-professor-willow/lineChatbot/messageTemplate/utils"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/thoas/go-funk"
@@ -19,6 +20,10 @@ type RemainingTime struct {
 
 // GenerateEventMessages converts game events to LINE flex messages
 func GenerateEventMessages(gameEvents []gd.Event) []linebot.SendingMessage {
+	if utils.IsEmpty(gameEvents) {
+		return utils.GenerateEmptyReasonMessage()
+	}
+
 	eventChunks := funk.Chunk(gameEvents, 10).([][]gd.Event)
 
 	return funk.Map(eventChunks, func(eventChunk []gd.Event) linebot.SendingMessage {

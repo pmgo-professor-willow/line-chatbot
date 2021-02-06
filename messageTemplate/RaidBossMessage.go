@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	gd "pmgo-professor-willow/lineChatbot/gamedata"
+	"pmgo-professor-willow/lineChatbot/messageTemplate/utils"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/thoas/go-funk"
@@ -12,6 +13,10 @@ import (
 
 // GenerateRaidBossMessages converts raid bosses to LINE flex messages
 func GenerateRaidBossMessages(raidBosses []gd.RaidBoss, raidTier string) []linebot.SendingMessage {
+	if utils.IsEmpty(raidBosses) {
+		return utils.GenerateEmptyReasonMessage()
+	}
+
 	bossChunks := funk.Chunk(raidBosses, 10).([][]gd.RaidBoss)
 
 	return funk.Map(bossChunks, func(bossChunk []gd.RaidBoss) linebot.SendingMessage {

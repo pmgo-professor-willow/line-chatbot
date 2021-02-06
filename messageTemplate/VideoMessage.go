@@ -5,6 +5,7 @@ import (
 	"time"
 
 	gd "pmgo-professor-willow/lineChatbot/gamedata"
+	"pmgo-professor-willow/lineChatbot/messageTemplate/utils"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/thoas/go-funk"
@@ -19,6 +20,10 @@ type PastTime struct {
 
 // GenerateVideoChannelsMessages converts channels to LINE quick reply messages
 func GenerateVideoChannelsMessages(channels []gd.Channel) []linebot.SendingMessage {
+	if utils.IsEmpty(channels) {
+		return utils.GenerateEmptyReasonMessage()
+	}
+
 	quickReplyItems := funk.Map(channels, func(channel gd.Channel) *linebot.QuickReplyButton {
 		return linebot.NewQuickReplyButton(
 			"",

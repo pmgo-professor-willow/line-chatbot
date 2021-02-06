@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gd "pmgo-professor-willow/lineChatbot/gamedata"
+	"pmgo-professor-willow/lineChatbot/messageTemplate/utils"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/thoas/go-funk"
@@ -11,6 +12,10 @@ import (
 
 // GenerateGraphicCatalogMessages converts user tweets to LINE template messages
 func GenerateGraphicCatalogMessages(userTweets gd.UserTweets) []linebot.SendingMessage {
+	if utils.IsEmpty(userTweets) {
+		return utils.GenerateEmptyReasonMessage()
+	}
+
 	tweetChunks := funk.Chunk(userTweets.Tweets, 10).([][]gd.TweetData)
 
 	return funk.Map(tweetChunks, func(tweetChunk []gd.TweetData) linebot.SendingMessage {

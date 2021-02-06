@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	gd "pmgo-professor-willow/lineChatbot/gamedata"
+	"pmgo-professor-willow/lineChatbot/messageTemplate/utils"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/thoas/go-funk"
@@ -12,6 +13,10 @@ import (
 
 // GenerateEggMessages converts eggs to LINE flex messages
 func GenerateEggMessages(eggs []gd.Egg, eggCategory string) []linebot.SendingMessage {
+	if utils.IsEmpty(eggs) {
+		return utils.GenerateEmptyReasonMessage()
+	}
+
 	return []linebot.SendingMessage{
 		linebot.NewFlexMessage(
 			fmt.Sprintf("%s 蛋可孵化出的寶可夢", eggCategory),

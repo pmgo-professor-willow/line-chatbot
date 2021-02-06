@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gd "pmgo-professor-willow/lineChatbot/gamedata"
+	"pmgo-professor-willow/lineChatbot/messageTemplate/utils"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/thoas/go-funk"
@@ -14,6 +15,10 @@ type ResearchCollection map[Category][]gd.Research
 
 // GenerateResearchMessages converts researches to LINE flex messages
 func GenerateResearchMessages(researches []gd.Research) []linebot.SendingMessage {
+	if utils.IsEmpty(researches) {
+		return utils.GenerateEmptyReasonMessage()
+	}
+
 	categories := funk.Uniq(funk.Map(researches, func(research gd.Research) Category {
 		return Category(research.Category)
 	})).([]Category)
