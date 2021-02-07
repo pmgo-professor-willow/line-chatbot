@@ -27,6 +27,10 @@ jobs:
           go mod vendor
           ls -al
 
+      - name: Overwrite dependencies
+        run: |
+          sh ./overwrite/execute.sh
+
       - name: Move local modules to /vendor
         run: |
           export MODULE_NAME=$(head -n 1 go.mod | awk -F ' ' '{print $2}')

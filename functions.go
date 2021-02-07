@@ -68,6 +68,7 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 		cache.RaidBosses = gd.LoadRaidBosses()
 		cache.Eggs = gd.LoadEggs()
 		cache.Researches = gd.LoadResearches()
+		cache.RocketInvasions = gd.LoadRocketInvasions()
 		cache.Events = gd.LoadEvents()
 		cache.TweetList = gd.LoadTweetList()
 		cache.Channels = gd.LoadChannels()
@@ -84,6 +85,10 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 		messages = mt.GenerateEggMessages(selectedEggs, selectedEggCategory)
 	} else if qs.Get("researches") != "" {
 		messages = mt.GenerateResearchMessages(cache.Researches)
+	} else if qs.Get("rocketInvasion") != "" {
+		selectedLabel := qs.Get("rocketInvasion")
+		filteredRocketInvasions := gd.FilterdRocketInvasions(cache.RocketInvasions, selectedLabel)
+		messages = mt.GenerateRocketInvasionMessage(filteredRocketInvasions)
 	} else if qs.Get("event") != "" {
 		selectedEventLabel := qs.Get("event")
 		filteredEvents := gd.FilterEvents(cache.Events, selectedEventLabel)

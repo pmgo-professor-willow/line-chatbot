@@ -12,6 +12,9 @@ LINE ID: <strong>@611mscwy</strong>
 ## Development
 
 ```sh
+# Overwrite partial denpencies in vendor
+sh ./overwrite/execute.sh
+
 # Listening on port 8080
 go run cmd/main.go
 ```
