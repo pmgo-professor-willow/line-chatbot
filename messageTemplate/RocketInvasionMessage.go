@@ -105,7 +105,7 @@ func GenerateRocketInvasionBubbleMessage(rocketInvasion gd.RocketInvasion) *line
 			&linebot.TextComponent{
 				Type:    linebot.FlexComponentTypeText,
 				Text:    rocketInvasion.Quote,
-				Size:    linebot.FlexTextSizeTypeMd,
+				Size:    linebot.FlexTextSizeTypeSm,
 				Align:   linebot.FlexComponentAlignTypeStart,
 				Gravity: linebot.FlexComponentGravityTypeTop,
 				Margin:  linebot.FlexComponentMarginTypeXs,
@@ -118,14 +118,24 @@ func GenerateRocketInvasionBubbleMessage(rocketInvasion gd.RocketInvasion) *line
 	}
 
 	headerContents := []linebot.FlexComponent{
-		&linebot.ImageComponent{
-			Type:    linebot.FlexComponentTypeImage,
-			Size:    "100px",
-			URL:     rocketInvasion.CharacterImageURL,
-			Align:   linebot.FlexComponentAlignTypeCenter,
-			Gravity: linebot.FlexComponentGravityTypeBottom,
-			Margin:  linebot.FlexComponentMarginTypeNone,
-			Flex:    &minFlex,
+		&linebot.BoxComponent{
+			Type:   linebot.FlexComponentTypeBox,
+			Layout: linebot.FlexBoxLayoutTypeVertical,
+			Contents: []linebot.FlexComponent{
+				&linebot.SpacerComponent{
+					Size: linebot.FlexSpacerSizeTypeMd,
+				},
+				&linebot.ImageComponent{
+					Type:    linebot.FlexComponentTypeImage,
+					Size:    "100px",
+					URL:     rocketInvasion.CharacterImageURL,
+					Align:   linebot.FlexComponentAlignTypeCenter,
+					Gravity: linebot.FlexComponentGravityTypeBottom,
+					Margin:  linebot.FlexComponentMarginTypeNone,
+					Flex:    &minFlex,
+				},
+			},
+			Margin: linebot.FlexComponentMarginTypeNone,
 		},
 		titleContent,
 	}
@@ -187,12 +197,14 @@ func GenerateRocketInvasionBubbleMessage(rocketInvasion gd.RocketInvasion) *line
 			},
 			BackgroundColor: "#3D4D4D",
 			Margin:          linebot.FlexComponentMarginTypeNone,
+			PaddingAll:      linebot.FlexComponentPaddingTypeNone,
 		},
 	}
 }
 
 // GenerateLineupPokemonsFlexComponent converts lineup pokemon to LINE flex message
 func GenerateLineupPokemonsFlexComponent(allLineupPokemons []gd.LineupPokemon, seltectedSolt int) []linebot.FlexComponent {
+	maxFlex := 2
 	minFlex := 1
 	withoutFlex := 0
 
@@ -210,7 +222,7 @@ func GenerateLineupPokemonsFlexComponent(allLineupPokemons []gd.LineupPokemon, s
 				Gravity: linebot.FlexComponentGravityTypeCenter,
 				Color:   "#FFFFFF",
 				Flex:    &withoutFlex,
-				Margin:  linebot.FlexComponentMarginTypeNone,
+				Margin:  linebot.FlexComponentMarginTypeMd,
 			},
 			&linebot.SeparatorComponent{
 				Type:   linebot.FlexComponentTypeSeparator,
@@ -220,14 +232,67 @@ func GenerateLineupPokemonsFlexComponent(allLineupPokemons []gd.LineupPokemon, s
 		}
 
 		for _, lineupPokemon := range lineupPokemons {
-			nameText := lineupPokemon.Name
+			avatarContents := []linebot.FlexComponent{}
 
+			// Left of avatar row
 			if lineupPokemon.Catchable {
-				nameText = "☘️ " + lineupPokemon.Name
+				avatarContents = append(
+					avatarContents,
+					&linebot.TextComponent{
+						Type:    linebot.FlexComponentTypeText,
+						Text:    "☘️",
+						Size:    linebot.FlexTextSizeTypeSm,
+						Align:   linebot.FlexComponentAlignTypeEnd,
+						Gravity: linebot.FlexComponentGravityTypeBottom,
+						Color:   "#FFFFFF",
+						Flex:    &minFlex,
+						Margin:  linebot.FlexComponentMarginTypeNone,
+					},
+				)
+			} else {
+				avatarContents = append(
+					avatarContents,
+					&linebot.FillerComponent{
+						Flex: &minFlex,
+					},
+				)
 			}
 
+			// Center of avatar row
+			avatarContents = append(
+				avatarContents,
+				&linebot.ImageComponent{
+					Type:    linebot.FlexComponentTypeImage,
+					Size:    "75px",
+					URL:     lineupPokemon.ImageURL,
+					Align:   linebot.FlexComponentAlignTypeCenter,
+					Gravity: linebot.FlexComponentGravityTypeBottom,
+					Flex:    &maxFlex,
+				},
+			)
+
+			// Right of avatar row
 			if lineupPokemon.ShinyAvailable {
-				nameText += " ✨"
+				avatarContents = append(
+					avatarContents,
+					&linebot.TextComponent{
+						Type:    linebot.FlexComponentTypeText,
+						Text:    "✨",
+						Size:    linebot.FlexTextSizeTypeSm,
+						Align:   linebot.FlexComponentAlignTypeStart,
+						Gravity: linebot.FlexComponentGravityTypeBottom,
+						Color:   "#FFFFFF",
+						Flex:    &minFlex,
+						Margin:  linebot.FlexComponentMarginTypeNone,
+					},
+				)
+			} else {
+				avatarContents = append(
+					avatarContents,
+					&linebot.FillerComponent{
+						Flex: &minFlex,
+					},
+				)
 			}
 
 			rowContents = append(
@@ -236,15 +301,14 @@ func GenerateLineupPokemonsFlexComponent(allLineupPokemons []gd.LineupPokemon, s
 					Type:   linebot.FlexComponentTypeBox,
 					Layout: linebot.FlexBoxLayoutTypeVertical,
 					Contents: []linebot.FlexComponent{
-						&linebot.ImageComponent{
-							Type:  linebot.FlexComponentTypeImage,
-							Size:  "75px",
-							URL:   lineupPokemon.ImageURL,
-							Align: linebot.FlexComponentAlignTypeCenter,
+						&linebot.BoxComponent{
+							Type:     linebot.FlexComponentTypeBox,
+							Layout:   linebot.FlexBoxLayoutTypeHorizontal,
+							Contents: avatarContents,
 						},
 						&linebot.TextComponent{
 							Type:    linebot.FlexComponentTypeText,
-							Text:    nameText,
+							Text:    lineupPokemon.Name,
 							Size:    linebot.FlexTextSizeTypeSm,
 							Align:   linebot.FlexComponentAlignTypeCenter,
 							Gravity: linebot.FlexComponentGravityTypeCenter,
@@ -257,6 +321,14 @@ func GenerateLineupPokemonsFlexComponent(allLineupPokemons []gd.LineupPokemon, s
 				},
 			)
 		}
+
+		// Add padding
+		rowContents = append(
+			rowContents,
+			&linebot.SpacerComponent{
+				Size: linebot.FlexSpacerSizeTypeMd,
+			},
+		)
 
 		return rowContents
 	}()

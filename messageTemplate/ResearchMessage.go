@@ -99,6 +99,14 @@ func GenerateResearchBubbleMessage(category Category, researches []gd.Research) 
 								Color: "#DCDCDC",
 							},
 						)
+					} else {
+						// Add a spacer for last row
+						row = append(
+							row,
+							&linebot.SpacerComponent{
+								Size: linebot.FlexSpacerSizeTypeMd,
+							},
+						)
 					}
 
 					return row
@@ -106,6 +114,9 @@ func GenerateResearchBubbleMessage(category Category, researches []gd.Research) 
 			).([]linebot.FlexComponent),
 			BackgroundColor: "#3D4D4D",
 			Margin:          linebot.FlexComponentMarginTypeNone,
+			PaddingAll:      linebot.FlexComponentPaddingTypeNone,
+			PaddingStart:    linebot.FlexComponentPaddingTypeMd,
+			PaddingEnd:      linebot.FlexComponentPaddingTypeMd,
 		},
 	}
 }
