@@ -65,7 +65,9 @@ func GenerateRocketInvasionBubbleMessage(rocketInvasion gd.RocketInvasion) *line
 	maxFlex := 3
 	minFlex := 1
 
+	hasQuote := rocketInvasion.Quote != ""
 	titleText := ""
+	defaultTitleGravity := linebot.FlexComponentGravityTypeCenter
 
 	if rocketInvasion.IsSpecial {
 		titleText = rocketInvasion.Category
@@ -73,36 +75,44 @@ func GenerateRocketInvasionBubbleMessage(rocketInvasion gd.RocketInvasion) *line
 		titleText = fmt.Sprintf("手下 (%s)", rocketInvasion.Category)
 	}
 
+	if hasQuote {
+		defaultTitleGravity = linebot.FlexComponentGravityTypeBottom
+	}
+
 	titleContent := &linebot.BoxComponent{
 		Type:   linebot.FlexComponentTypeBox,
 		Layout: linebot.FlexBoxLayoutTypeVertical,
 		Contents: []linebot.FlexComponent{
 			&linebot.TextComponent{
-				Type:   linebot.FlexComponentTypeText,
-				Text:   titleText,
-				Size:   linebot.FlexTextSizeTypeLg,
-				Align:  linebot.FlexComponentAlignTypeStart,
-				Margin: linebot.FlexComponentMarginTypeNone,
-				Color:  "#FFFFFF",
-				Weight: linebot.FlexTextWeightTypeBold,
+				Type:    linebot.FlexComponentTypeText,
+				Text:    titleText,
+				Size:    linebot.FlexTextSizeTypeLg,
+				Align:   linebot.FlexComponentAlignTypeStart,
+				Gravity: defaultTitleGravity,
+				Margin:  linebot.FlexComponentMarginTypeXs,
+				Color:   "#FFFFFF",
+				Weight:  linebot.FlexTextWeightTypeBold,
+				Flex:    &minFlex,
 			},
 		},
 		Flex: &maxFlex,
 	}
 
 	// Append quote if exist
-	if rocketInvasion.Quote != "" {
+	if hasQuote {
 		titleContent.Contents = append(
 			titleContent.Contents,
 			&linebot.TextComponent{
-				Type:   linebot.FlexComponentTypeText,
-				Text:   rocketInvasion.Quote,
-				Size:   linebot.FlexTextSizeTypeMd,
-				Align:  linebot.FlexComponentAlignTypeStart,
-				Margin: linebot.FlexComponentMarginTypeNone,
-				Color:  "#CDCDCD",
-				Weight: linebot.FlexTextWeightTypeBold,
-				Wrap:   true,
+				Type:    linebot.FlexComponentTypeText,
+				Text:    rocketInvasion.Quote,
+				Size:    linebot.FlexTextSizeTypeMd,
+				Align:   linebot.FlexComponentAlignTypeStart,
+				Gravity: linebot.FlexComponentGravityTypeTop,
+				Margin:  linebot.FlexComponentMarginTypeXs,
+				Color:   "#CDCDCD",
+				Weight:  linebot.FlexTextWeightTypeBold,
+				Wrap:    true,
+				Flex:    &minFlex,
 			},
 		)
 	}
@@ -128,6 +138,7 @@ func GenerateRocketInvasionBubbleMessage(rocketInvasion gd.RocketInvasion) *line
 			Layout:          linebot.FlexBoxLayoutTypeHorizontal,
 			Contents:        headerContents,
 			BackgroundColor: "#455F60",
+			PaddingTop:      linebot.FlexComponentPaddingTypeNone,
 			PaddingBottom:   linebot.FlexComponentPaddingTypeNone,
 		},
 		Body: &linebot.BoxComponent{
