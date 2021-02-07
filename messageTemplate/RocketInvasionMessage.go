@@ -10,6 +10,34 @@ import (
 	"github.com/thoas/go-funk"
 )
 
+// GenerateRocketInvasionListMessages sends LINE quick reply messages
+func GenerateRocketInvasionListMessages() []linebot.SendingMessage {
+	return []linebot.SendingMessage{
+		linebot.NewTextMessage(
+			"我想了解目前的火箭隊陣容。",
+		).WithQuickReplies(
+			linebot.NewQuickReplyItems(
+				linebot.NewQuickReplyButton(
+					"",
+					&linebot.PostbackAction{
+						Label:       "普通手下的陣容",
+						Data:        "rocketInvasion=grunt",
+						DisplayText: "請列出火箭隊普通手下的陣容。",
+					},
+				),
+				linebot.NewQuickReplyButton(
+					"",
+					&linebot.PostbackAction{
+						Label:       "幹部與特殊角色的陣容",
+						Data:        "rocketInvasion=special",
+						DisplayText: "請列出火箭隊幹部與特殊角色的陣容。",
+					},
+				),
+			),
+		),
+	}
+}
+
 // GenerateRocketInvasionMessage converts rocket invasions to LINE flex messages
 func GenerateRocketInvasionMessage(rocketInvasions []gd.RocketInvasion) []linebot.SendingMessage {
 	if utils.IsEmpty(rocketInvasions) {

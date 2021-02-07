@@ -18,6 +18,34 @@ type RemainingTime struct {
 	Minutes int
 }
 
+// GenerateEventListMessages sends LINE quick reply messages
+func GenerateEventListMessages() []linebot.SendingMessage {
+	return []linebot.SendingMessage{
+		linebot.NewTextMessage(
+			"我想了解目前的活動。 (英文版資訊)",
+		).WithQuickReplies(
+			linebot.NewQuickReplyItems(
+				linebot.NewQuickReplyButton(
+					"",
+					&linebot.PostbackAction{
+						Label:       "進行中的活動",
+						Data:        "event=current",
+						DisplayText: "請列出進行中的活動。",
+					},
+				),
+				linebot.NewQuickReplyButton(
+					"",
+					&linebot.PostbackAction{
+						Label:       "即將開始的活動",
+						Data:        "event=upcoming",
+						DisplayText: "請列出即將開始的活動。",
+					},
+				),
+			),
+		),
+	}
+}
+
 // GenerateEventMessages converts game events to LINE flex messages
 func GenerateEventMessages(gameEvents []gd.Event) []linebot.SendingMessage {
 	if utils.IsEmpty(gameEvents) {

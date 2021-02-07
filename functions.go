@@ -87,12 +87,20 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 		messages = mt.GenerateResearchMessages(cache.Researches)
 	} else if qs.Get("rocketInvasion") != "" {
 		selectedLabel := qs.Get("rocketInvasion")
-		filteredRocketInvasions := gd.FilterdRocketInvasions(cache.RocketInvasions, selectedLabel)
-		messages = mt.GenerateRocketInvasionMessage(filteredRocketInvasions)
+		if selectedLabel == "list" {
+			messages = mt.GenerateRocketInvasionListMessages()
+		} else {
+			filteredRocketInvasions := gd.FilterdRocketInvasions(cache.RocketInvasions, selectedLabel)
+			messages = mt.GenerateRocketInvasionMessage(filteredRocketInvasions)
+		}
 	} else if qs.Get("event") != "" {
 		selectedEventLabel := qs.Get("event")
-		filteredEvents := gd.FilterEvents(cache.Events, selectedEventLabel)
-		messages = mt.GenerateEventMessages(filteredEvents)
+		if selectedEventLabel == "list" {
+			messages = mt.GenerateEventListMessages()
+		} else {
+			filteredEvents := gd.FilterEvents(cache.Events, selectedEventLabel)
+			messages = mt.GenerateEventMessages(filteredEvents)
+		}
 	} else if qs.Get("graphics") != "" && qs.Get("tweetId") == "" {
 		selectedTwitterUser := qs.Get("graphics")
 		selectedUserTweets := gd.FindUserTweets(cache.TweetList, selectedTwitterUser)
