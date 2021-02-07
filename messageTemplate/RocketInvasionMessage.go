@@ -14,7 +14,7 @@ import (
 func GenerateRocketInvasionListMessages() []linebot.SendingMessage {
 	return []linebot.SendingMessage{
 		linebot.NewTextMessage(
-			"我想了解目前的火箭隊陣容。",
+			"想知道火箭隊手下還是幹部的陣容呢？",
 		).WithQuickReplies(
 			linebot.NewQuickReplyItems(
 				linebot.NewQuickReplyButton(
