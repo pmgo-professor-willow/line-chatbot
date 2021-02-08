@@ -59,16 +59,16 @@ func GenerateQuestionMessages(selectedQuestion string) []linebot.SendingMessage 
 				"資料來源主以國外 Leek Duck 與 The Sliph Road 網站所彙整，維羅博士透過自動化程式進行收集。\n\n因此更新時間將以上述網站為主，而雙方資訊差異不會超過三十分鐘。",
 			),
 			linebot.NewTextMessage(
-				"維羅博士所使用的所有圖片、寶可夢資訊之版權皆屬於 Niantic, Inc. 與 Nintendo 擁有。",
+				"維羅博士所使用之圖片、寶可夢資訊之版權屬於 Niantic, Inc. 與 Nintendo 擁有。（部分為二創將不在此列）",
 			),
 		}
 	} else if selectedQuestion == "dataAccuracy" {
 		messages = []linebot.SendingMessage{
 			linebot.NewTextMessage(
-				"資料取自富有規模的國外資料站，儘管可性度相當高，若與實際遊戲內容存在差異，維羅博士不另行告知。",
+				"資料取自富有規模的國外資料站，儘管可信度相當高，若與實際遊戲內容存在差異，維羅博士不另行告知。",
 			),
 			linebot.NewTextMessage(
-				"因為地方時區因素，可能存在活動交替的資訊落差，請各位訓練家注意。\n\n而時間倒數資訊將以台灣時區為主 (GMT+8)。",
+				"因地方時區因素，可能存在活動交替導致資訊落差，請各位訓練家注意。\n\n而時間倒數資訊將以台灣時區為主 (GMT+8)。",
 			),
 		}
 	} else if selectedQuestion == "pricing" {
