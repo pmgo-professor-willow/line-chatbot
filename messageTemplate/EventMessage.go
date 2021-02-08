@@ -71,7 +71,7 @@ func GenerateEventBubbleMessage(event gd.Event) *linebot.BubbleContainer {
 	withoutFlex := 0
 	remainingText := "尚未公布相關時間"
 
-	if event.Label == "incoming" && event.StartTime != "" {
+	if event.Label == "upcoming" && event.StartTime != "" {
 		startTime, _ := time.Parse(time.RFC3339, event.StartTime)
 		duration := time.Now().Sub(startTime)
 		remaining := RemainingTime{

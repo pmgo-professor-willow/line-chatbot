@@ -43,20 +43,33 @@ func LoadEvents() []Event {
 // FilterEvents filters game events by specified label
 func FilterEvents(gameEvents []Event, label string) []Event {
 	return funk.Filter(gameEvents, func(gameEvent Event) bool {
-		isCurrentEvent := gameEvent.Label == label
+		isSameLabel := gameEvent.Label == label
+		isMatchedEvent := false
 
-		isInProgress := false
-		if gameEvent.StartTime != "" && gameEvent.EndTime != "" {
-			startTime, _ := time.Parse(time.RFC3339, gameEvent.StartTime)
-			endTime, _ := time.Parse(time.RFC3339, gameEvent.EndTime)
-			isInProgress = int(time.Now().Sub(startTime).Minutes()) > 0 && int(endTime.Sub(time.Now()).Minutes()) > 0
-		} else if gameEvent.EndTime != "" {
-			endTime, _ := time.Parse(time.RFC3339, gameEvent.EndTime)
-			isInProgress = int(endTime.Sub(time.Now()).Minutes()) > 0
-		} else if gameEvent.StartTime == "" && gameEvent.EndTime == "" {
-			isInProgress = true
+		if gameEvent.Label == "current" {
+			isInProgress := false
+			if gameEvent.StartTime != "" && gameEvent.EndTime != "" {
+				startTime, _ := time.Parse(time.RFC3339, gameEvent.StartTime)
+				endTime, _ := time.Parse(time.RFC3339, gameEvent.EndTime)
+				isInProgress = int(time.Now().Sub(startTime).Minutes()) > 0 && int(endTime.Sub(time.Now()).Minutes()) > 0
+			} else if gameEvent.EndTime != "" {
+				endTime, _ := time.Parse(time.RFC3339, gameEvent.EndTime)
+				isInProgress = int(endTime.Sub(time.Now()).Minutes()) > 0
+			} else if gameEvent.StartTime == "" && gameEvent.EndTime == "" {
+				isInProgress = true
+			}
+
+			isMatchedEvent = isSameLabel && isInProgress
+		} else if gameEvent.Label == "upcoming" {
+			isWaiting := false
+			if gameEvent.StartTime != "" {
+				startTime, _ := time.Parse(time.RFC3339, gameEvent.StartTime)
+				isWaiting = int(time.Now().Sub(startTime).Minutes()) < 0
+			}
+
+			isMatchedEvent = isSameLabel && isWaiting
 		}
 
-		return isCurrentEvent && isInProgress
+		return isMatchedEvent
 	}).([]Event)
 }
