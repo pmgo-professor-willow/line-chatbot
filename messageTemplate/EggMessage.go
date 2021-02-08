@@ -33,8 +33,9 @@ func GenerateEggMessages(eggs []gd.Egg, eggCategory string) []linebot.SendingMes
 // GenerateEggBubbleMessage converts eggs to LINE bubble message
 func GenerateEggBubbleMessage(eggs []gd.Egg, eggCategory string) *linebot.BubbleContainer {
 	columnCount := 3
+	appendDummyCount := (columnCount - len(eggs)%columnCount) % columnCount
 	eggsWithDummies := eggs
-	for i := 0; i < columnCount-len(eggs)%columnCount; i++ {
+	for i := 0; i < appendDummyCount; i++ {
 		eggsWithDummies = append(eggsWithDummies, gd.CreateDummyEgg())
 	}
 
