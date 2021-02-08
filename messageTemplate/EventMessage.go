@@ -69,9 +69,23 @@ func GenerateEventMessages(gameEvents []gd.Event) []linebot.SendingMessage {
 func GenerateEventBubbleMessage(event gd.Event) *linebot.BubbleContainer {
 	maxFlex := 10
 	withoutFlex := 0
-	remainingText := "尚未公布結束時間"
+	remainingText := "尚未公布相關時間"
 
-	if event.EndTime != "" {
+	if event.Label == "incoming" && event.StartTime != "" {
+		startTime, _ := time.Parse(time.RFC3339, event.StartTime)
+		duration := time.Now().Sub(startTime)
+		remaining := RemainingTime{
+			Days:    int(duration.Hours()) / 24,
+			Hours:   int(duration.Hours()) % 24,
+			Minutes: int(duration.Minutes()) % 60,
+		}
+		remainingText = fmt.Sprintf(
+			"%d 天 %d 小時 %d 分鐘後開始",
+			remaining.Days, remaining.Hours, remaining.Minutes,
+		)
+	}
+
+	if event.Label == "current" && event.EndTime != "" {
 		endTime, _ := time.Parse(time.RFC3339, event.EndTime)
 		duration := endTime.Sub(time.Now())
 		remaining := RemainingTime{
