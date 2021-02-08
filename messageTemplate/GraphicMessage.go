@@ -35,20 +35,35 @@ func GenerateGraphicCatalogMessages(userTweets gd.UserTweets) []linebot.SendingM
 
 // GenerateGraphicDetailMessages converts tweet to LINE messages
 func GenerateGraphicDetailMessages(tweet gd.TweetData, userName string) []linebot.SendingMessage {
-	return []linebot.SendingMessage{
-		linebot.NewTextMessage(tweet.Text),
-		linebot.NewImageMessage(tweet.Media.URL, tweet.Media.URL),
-		linebot.NewTextMessage(fmt.Sprintf(
-			"以上圖文訊息由 %s 整理",
-			userName,
-		)),
+	text := fmt.Sprintf(
+		"此則圖文訊息由 %s 整理\n\n%s",
+		userName,
+		tweet.Text,
+	)
+
+	messages := []linebot.SendingMessage{
+		linebot.NewTextMessage(text),
 	}
+
+	for _, media := range tweet.MediaList {
+		messages = append(
+			messages,
+			linebot.NewImageMessage(media.URL, media.URL),
+		)
+	}
+
+	// Slice messages becuase message amount limit
+	if len(messages) > 5 {
+		messages = messages[0:5]
+	}
+
+	return messages
 }
 
 // GenerateGraphicColumn converts user tweets to LINE column
 func GenerateGraphicColumn(twitterUserName string, tweet gd.TweetData) *linebot.ImageCarouselColumn {
 	return linebot.NewImageCarouselColumn(
-		tweet.Media.URL,
+		tweet.MediaList[0].URL,
 		&linebot.PostbackAction{
 			Label: "檢視完整資訊",
 			Data: fmt.Sprintf(

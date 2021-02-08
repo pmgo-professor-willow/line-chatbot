@@ -19,10 +19,10 @@ type TweetMediaData struct {
 
 // TweetData is pre-processing data from Twitter API
 type TweetData struct {
-	ID        string         `json:"id"`
-	Text      string         `json:"text"`
-	Media     TweetMediaData `json:"media"`
-	CreatedAt string         `json:"createdAt"`
+	ID        string           `json:"id"`
+	Text      string           `json:"text"`
+	MediaList []TweetMediaData `json:"mediaList"`
+	CreatedAt string           `json:"createdAt"`
 }
 
 // UserTweets is pre-processing data from Twitter API
