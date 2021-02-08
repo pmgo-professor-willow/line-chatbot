@@ -73,7 +73,7 @@ func GenerateEventBubbleMessage(event gd.Event) *linebot.BubbleContainer {
 
 	if event.Label == "upcoming" && event.StartTime != "" {
 		startTime, _ := time.Parse(time.RFC3339, event.StartTime)
-		duration := time.Now().Sub(startTime)
+		duration := startTime.Sub(time.Now())
 		remaining := RemainingTime{
 			Days:    int(duration.Hours()) / 24,
 			Hours:   int(duration.Hours()) % 24,
