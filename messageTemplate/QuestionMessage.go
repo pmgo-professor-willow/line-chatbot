@@ -76,9 +76,6 @@ func GenerateQuestionMessages(selectedQuestion string) []linebot.SendingMessage 
 			linebot.NewTextMessage(
 				"維羅博士提供的功能皆為「免費」，且不會有任何廣告訊息。\n\n在使用過程中，傳輸圖片所產生的流量，請訓練家們自行注意哦！",
 			),
-			linebot.NewTextMessage(
-				"本服務雖有伺服器的開銷，但現階段仍能夠自行吸收。",
-			),
 		}
 	} else if selectedQuestion == "contact" {
 		messages = []linebot.SendingMessage{
