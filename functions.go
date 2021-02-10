@@ -26,6 +26,17 @@ func WebhookFunction(w http.ResponseWriter, req *http.Request) {
 	events, _ := client.ParseRequest(req)
 	for _, event := range events {
 		switch event.Type {
+		case linebot.EventTypeFollow:
+			profile, _ := client.GetProfile(event.Source.UserID).Do()
+			messages := mt.GenerateWelcomMessages(profile.DisplayName)
+
+			replyMessageCall := client.ReplyMessage(event.ReplyToken, messages...)
+
+			if _, err := replyMessageCall.Do(); err != nil {
+				fmt.Println(err)
+			}
+			break
+
 		case linebot.EventTypeMessage:
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
@@ -47,11 +58,13 @@ func WebhookFunction(w http.ResponseWriter, req *http.Request) {
 					)
 					break
 				}
+				break
 			}
 
 		case linebot.EventTypePostback:
 			qs, _ := url.ParseQuery(event.Postback.Data)
 			PostbackReply(client, event.ReplyToken, qs)
+			break
 		}
 	}
 
@@ -122,7 +135,8 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 		if selectedQuestion == "list" {
 			messages = mt.GenerateQuestionListMessages()
 		} else {
-			messages = mt.GenerateQuestionMessages(selectedQuestion)
+			botInfo, _ := client.GetBotInfo().Do()
+			messages = mt.GenerateQuestionMessages(selectedQuestion, botInfo.BasicID)
 		}
 	}
 
