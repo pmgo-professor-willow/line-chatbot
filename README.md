@@ -9,6 +9,12 @@ LINE ID: <strong>@611mscwy</strong>
 
 ---
 
+<p align="center">
+<img src="./doc/features.png">
+</p>
+
+---
+
 ## Development
 
 ```sh
