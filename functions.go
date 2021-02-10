@@ -14,6 +14,8 @@ import (
 	"github.com/line/line-bot-sdk-go/linebot"
 )
 
+var botInfo *linebot.BotInfoResponse
+
 // WebhookFunction is base LINE webhook entry
 func WebhookFunction(w http.ResponseWriter, req *http.Request) {
 	// LINE messaging API client
@@ -22,6 +24,11 @@ func WebhookFunction(w http.ResponseWriter, req *http.Request) {
 		os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"),
 		linebot.WithHTTPClient(&http.Client{}),
 	)
+
+	if botInfo == nil {
+		currentBotInfo, _ := client.GetBotInfo().Do()
+		botInfo = currentBotInfo
+	}
 
 	events, _ := client.ParseRequest(req)
 	for _, event := range events {
@@ -133,9 +140,8 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 	} else if qs.Get("faq") != "" {
 		selectedQuestion := qs.Get("faq")
 		if selectedQuestion == "list" {
-			messages = mt.GenerateQuestionListMessages()
+			messages = mt.GenerateQuestionListMessages(botInfo.BasicID)
 		} else {
-			botInfo, _ := client.GetBotInfo().Do()
 			messages = mt.GenerateQuestionMessages(selectedQuestion, botInfo.BasicID)
 		}
 	}

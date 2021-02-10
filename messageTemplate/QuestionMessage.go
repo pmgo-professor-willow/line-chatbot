@@ -7,7 +7,7 @@ import (
 )
 
 // GenerateQuestionListMessages sends LINE flex messages
-func GenerateQuestionListMessages() []linebot.SendingMessage {
+func GenerateQuestionListMessages(botBasicID string) []linebot.SendingMessage {
 	return []linebot.SendingMessage{
 		linebot.NewTemplateMessage(
 			"常見問題",
@@ -15,7 +15,7 @@ func GenerateQuestionListMessages() []linebot.SendingMessage {
 				&linebot.CarouselColumn{
 					ThumbnailImageURL: "https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/faq-data.png",
 					Title:             "資料相關",
-					Text:              "團體戰、蛋池等資訊",
+					Text:              "關於團體戰、蛋池與活動等資訊",
 					Actions: []linebot.TemplateAction{
 						&linebot.PostbackAction{
 							Label:       "資料來源與更新週期",
@@ -31,8 +31,8 @@ func GenerateQuestionListMessages() []linebot.SendingMessage {
 				},
 				&linebot.CarouselColumn{
 					ThumbnailImageURL: "https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/faq-misc.png",
-					Title:             "其它",
-					Text:              "其它問題",
+					Title:             "其它問題",
+					Text:              "關於維羅博士的運作方式與系統反饋",
 					Actions: []linebot.TemplateAction{
 						&linebot.PostbackAction{
 							Label:       "此為免費服務",
@@ -43,6 +43,24 @@ func GenerateQuestionListMessages() []linebot.SendingMessage {
 							Label:       "提供建議或反饋",
 							Data:        "faq=contact",
 							DisplayText: "我應該如何提供對系統的建議或反饋？",
+						},
+					},
+				},
+				&linebot.CarouselColumn{
+					ThumbnailImageURL: "https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/faq-share.png",
+					Title:             "分享推廣",
+					Text:              "將維羅博士介紹給更多的訓練家",
+					Actions: []linebot.TemplateAction{
+						&linebot.URIAction{
+							Label: "將博士介紹給朋友",
+							URI: fmt.Sprintf(
+								"https://line.me/R/nv/recommendOA/%s",
+								botBasicID,
+							),
+						},
+						&linebot.URIAction{
+							Label: "巴哈姆特討論串",
+							URI:   "https://forum.gamer.com.tw/B.php?bsn=29659",
 						},
 					},
 				},
