@@ -37,6 +37,7 @@ jobs:
           mkdir -p ./vendor/$MODULE_NAME
           mv gamedata ./vendor/$MODULE_NAME
           mv messageTemplate ./vendor/$MODULE_NAME
+          mv utils ./vendor/$MODULE_NAME
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@master
