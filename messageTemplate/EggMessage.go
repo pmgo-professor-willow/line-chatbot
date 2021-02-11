@@ -41,6 +41,28 @@ func GenerateEggBubbleMessage(eggs []gd.Egg, eggCategory string) *linebot.Bubble
 
 	eggRows := funk.Chunk(eggsWithDummies, columnCount).([][]gd.Egg)
 
+	rowContents := funk.Map(eggRows, func(eggRow []gd.Egg) linebot.FlexComponent {
+		return &linebot.BoxComponent{
+			Type:   linebot.FlexComponentTypeBox,
+			Layout: linebot.FlexBoxLayoutTypeHorizontal,
+			Contents: funk.Map(eggRow, func(egg gd.Egg) linebot.FlexComponent {
+				return &linebot.BoxComponent{
+					Type:     linebot.FlexComponentTypeBox,
+					Layout:   linebot.FlexBoxLayoutTypeVertical,
+					Contents: GenerateEggFlexComponent(egg),
+				}
+			}).([]linebot.FlexComponent),
+		}
+	}).([]linebot.FlexComponent)
+
+	// Add padding
+	rowContents = append(
+		rowContents,
+		&linebot.SpacerComponent{
+			Size: linebot.FlexSpacerSizeTypeMd,
+		},
+	)
+
 	return &linebot.BubbleContainer{
 		Type: linebot.FlexContainerTypeBubble,
 		Size: linebot.FlexBubbleSizeTypeGiga,
@@ -59,21 +81,9 @@ func GenerateEggBubbleMessage(eggs []gd.Egg, eggCategory string) *linebot.Bubble
 			BackgroundColor: "#455F60",
 		},
 		Body: &linebot.BoxComponent{
-			Type:   linebot.FlexComponentTypeBox,
-			Layout: linebot.FlexBoxLayoutTypeVertical,
-			Contents: funk.Map(eggRows, func(eggRow []gd.Egg) linebot.FlexComponent {
-				return &linebot.BoxComponent{
-					Type:   linebot.FlexComponentTypeBox,
-					Layout: linebot.FlexBoxLayoutTypeHorizontal,
-					Contents: funk.Map(eggRow, func(egg gd.Egg) linebot.FlexComponent {
-						return &linebot.BoxComponent{
-							Type:     linebot.FlexComponentTypeBox,
-							Layout:   linebot.FlexBoxLayoutTypeVertical,
-							Contents: GenerateEggFlexComponent(egg),
-						}
-					}).([]linebot.FlexComponent),
-				}
-			}).([]linebot.FlexComponent),
+			Type:            linebot.FlexComponentTypeBox,
+			Layout:          linebot.FlexBoxLayoutTypeVertical,
+			Contents:        rowContents,
 			BackgroundColor: "#3D4D4D",
 			Margin:          linebot.FlexComponentMarginTypeNone,
 			PaddingAll:      linebot.FlexComponentPaddingTypeNone,
