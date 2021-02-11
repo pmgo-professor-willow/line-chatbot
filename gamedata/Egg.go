@@ -16,6 +16,7 @@ type Egg struct {
 	Category       string `json:"category"`
 	ImageURL       string `json:"imageUrl"`
 	ShinyAvailable bool   `json:"shinyAvailable"`
+	Regional       bool   `json:"regional"`
 	CP             struct {
 		Min int `json:"min"`
 		Max int `json:"max"`
@@ -56,6 +57,7 @@ func CreateDummyEgg() Egg {
 		Category:       "",
 		ImageURL:       "https://sample.com/dummy.png",
 		ShinyAvailable: false,
+		Regional:       false,
 		CP: struct {
 			Min int `json:"min"`
 			Max int `json:"max"`

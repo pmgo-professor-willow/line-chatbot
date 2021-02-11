@@ -76,34 +76,105 @@ func GenerateEggBubbleMessage(eggs []gd.Egg, eggCategory string) *linebot.Bubble
 			}).([]linebot.FlexComponent),
 			BackgroundColor: "#3D4D4D",
 			Margin:          linebot.FlexComponentMarginTypeNone,
+			PaddingAll:      linebot.FlexComponentPaddingTypeNone,
+			PaddingStart:    linebot.FlexComponentPaddingTypeMd,
+			PaddingEnd:      linebot.FlexComponentPaddingTypeMd,
 		},
 	}
 }
 
 // GenerateEggFlexComponent converts eggs to LINE bubble message
 func GenerateEggFlexComponent(egg gd.Egg) []linebot.FlexComponent {
+	maxFlex := 2
+	minFlex := 1
+
 	pokemonName := egg.Name
 	// Regional pokemon.
 	pokemonName = strings.Replace(pokemonName, "伽勒爾", "[伽]", 1)
 	pokemonName = strings.Replace(pokemonName, "阿羅拉", "[阿]", 1)
 
+	avatarContents := []linebot.FlexComponent{}
+
+	// Left of avatar row
+	if egg.Regional {
+		avatarContents = append(
+			avatarContents,
+			&linebot.TextComponent{
+				Type:    linebot.FlexComponentTypeText,
+				Text:    "🌐",
+				Size:    linebot.FlexTextSizeTypeSm,
+				Align:   linebot.FlexComponentAlignTypeEnd,
+				Gravity: linebot.FlexComponentGravityTypeBottom,
+				Color:   "#FFFFFF",
+				Flex:    &minFlex,
+				Margin:  linebot.FlexComponentMarginTypeNone,
+			},
+		)
+	} else {
+		avatarContents = append(
+			avatarContents,
+			&linebot.FillerComponent{
+				Flex: &minFlex,
+			},
+		)
+	}
+
+	// Center of avatar row
+	avatarContents = append(
+		avatarContents,
+		&linebot.ImageComponent{
+			Type:    linebot.FlexComponentTypeImage,
+			Size:    "75px",
+			URL:     egg.ImageURL,
+			Align:   linebot.FlexComponentAlignTypeCenter,
+			Gravity: linebot.FlexComponentGravityTypeBottom,
+			Flex:    &maxFlex,
+		},
+	)
+
+	// Right of avatar row
 	if egg.ShinyAvailable {
-		pokemonName += " ✨"
+		avatarContents = append(
+			avatarContents,
+			&linebot.TextComponent{
+				Type:    linebot.FlexComponentTypeText,
+				Text:    "✨",
+				Size:    linebot.FlexTextSizeTypeSm,
+				Align:   linebot.FlexComponentAlignTypeStart,
+				Gravity: linebot.FlexComponentGravityTypeBottom,
+				Color:   "#FFFFFF",
+				Flex:    &minFlex,
+				Margin:  linebot.FlexComponentMarginTypeNone,
+			},
+		)
+	} else {
+		avatarContents = append(
+			avatarContents,
+			&linebot.FillerComponent{
+				Flex: &minFlex,
+			},
+		)
 	}
 
 	return []linebot.FlexComponent{
-		&linebot.ImageComponent{
-			Type:  linebot.FlexComponentTypeImage,
-			Size:  "75px",
-			URL:   egg.ImageURL,
-			Align: linebot.FlexComponentAlignTypeCenter,
-		},
-		&linebot.TextComponent{
-			Type:  linebot.FlexComponentTypeText,
-			Text:  pokemonName,
-			Size:  linebot.FlexTextSizeTypeMd,
-			Align: linebot.FlexComponentAlignTypeCenter,
-			Color: "#FFFFFF",
+		&linebot.BoxComponent{
+			Type:   linebot.FlexComponentTypeBox,
+			Layout: linebot.FlexBoxLayoutTypeVertical,
+			Contents: []linebot.FlexComponent{
+				&linebot.BoxComponent{
+					Type:     linebot.FlexComponentTypeBox,
+					Layout:   linebot.FlexBoxLayoutTypeHorizontal,
+					Contents: avatarContents,
+				},
+				&linebot.TextComponent{
+					Type:  linebot.FlexComponentTypeText,
+					Text:  pokemonName,
+					Size:  linebot.FlexTextSizeTypeMd,
+					Align: linebot.FlexComponentAlignTypeCenter,
+					Color: "#FFFFFF",
+				},
+			},
+			Margin: linebot.FlexComponentMarginTypeNone,
 		},
 	}
 }
