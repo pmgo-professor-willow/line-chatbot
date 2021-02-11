@@ -2,11 +2,11 @@ package messageTemplate
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	gd "pmgo-professor-willow/lineChatbot/gamedata"
 	"pmgo-professor-willow/lineChatbot/messageTemplate/utils"
+	timeUtils "pmgo-professor-willow/lineChatbot/utils"
 
 	"github.com/line/line-bot-sdk-go/linebot"
 	"github.com/thoas/go-funk"
@@ -73,13 +73,7 @@ func GenerateEventBubbleMessage(event gd.Event) *linebot.BubbleContainer {
 	remainingText := "尚未公布相關時間"
 
 	if event.Label == "upcoming" && event.StartTime != "" {
-		var startTime time.Time
-		if event.IsLocaleTime {
-			loc, _ := time.LoadLocation(os.Getenv("TIMEZONE_LOCATION"))
-			startTime, _ = time.ParseInLocation("2006-01-02T15:04:05Z", event.StartTime, loc)
-		} else {
-			startTime, _ = time.Parse(time.RFC3339, event.StartTime)
-		}
+		startTime := timeUtils.ToTimeInstance(event.StartTime, event.IsLocaleTime)
 		duration := startTime.Sub(time.Now())
 		remaining := RemainingTime{
 			Days:    int(duration.Hours()) / 24,
@@ -93,13 +87,7 @@ func GenerateEventBubbleMessage(event gd.Event) *linebot.BubbleContainer {
 	}
 
 	if event.Label == "current" && event.EndTime != "" {
-		var endTime time.Time
-		if event.IsLocaleTime {
-			loc, _ := time.LoadLocation(os.Getenv("TIMEZONE_LOCATION"))
-			endTime, _ = time.ParseInLocation("2006-01-02T15:04:05Z", event.EndTime, loc)
-		} else {
-			endTime, _ = time.Parse(time.RFC3339, event.EndTime)
-		}
+		endTime := timeUtils.ToTimeInstance(event.EndTime, event.IsLocaleTime)
 		duration := endTime.Sub(time.Now())
 		remaining := RemainingTime{
 			Days:    int(duration.Hours()) / 24,

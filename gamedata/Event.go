@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"time"
+
+	timeUtils "pmgo-professor-willow/lineChatbot/utils"
 
 	"github.com/thoas/go-funk"
 )
@@ -43,8 +44,6 @@ func LoadEvents() []Event {
 
 // FilterEvents filters game events by specified label
 func FilterEvents(gameEvents []Event, label string) []Event {
-	loc, _ := time.LoadLocation(os.Getenv("TIMEZONE_LOCATION"))
-
 	return funk.Filter(gameEvents, func(gameEvent Event) bool {
 		isSameLabel := gameEvent.Label == label
 		isMatchedEvent := false
@@ -52,23 +51,11 @@ func FilterEvents(gameEvents []Event, label string) []Event {
 		if gameEvent.Label == "current" {
 			isInProgress := false
 			if gameEvent.StartTime != "" && gameEvent.EndTime != "" {
-				var startTime time.Time
-				var endTime time.Time
-				if gameEvent.IsLocaleTime {
-					startTime, _ = time.ParseInLocation("2006-01-02T15:04:05Z", gameEvent.StartTime, loc)
-					endTime, _ = time.ParseInLocation("2006-01-02T15:04:05Z", gameEvent.EndTime, loc)
-				} else {
-					startTime, _ = time.Parse(time.RFC3339, gameEvent.StartTime)
-					endTime, _ = time.Parse(time.RFC3339, gameEvent.EndTime)
-				}
+				startTime := timeUtils.ToTimeInstance(gameEvent.StartTime, gameEvent.IsLocaleTime)
+				endTime := timeUtils.ToTimeInstance(gameEvent.EndTime, gameEvent.IsLocaleTime)
 				isInProgress = int(time.Now().Sub(startTime).Minutes()) > 0 && int(endTime.Sub(time.Now()).Minutes()) > 0
 			} else if gameEvent.EndTime != "" {
-				var endTime time.Time
-				if gameEvent.IsLocaleTime {
-					endTime, _ = time.ParseInLocation("2006-01-02T15:04:05Z", gameEvent.EndTime, loc)
-				} else {
-					endTime, _ = time.Parse(time.RFC3339, gameEvent.EndTime)
-				}
+				endTime := timeUtils.ToTimeInstance(gameEvent.EndTime, gameEvent.IsLocaleTime)
 				isInProgress = int(endTime.Sub(time.Now()).Minutes()) > 0
 			} else if gameEvent.StartTime == "" && gameEvent.EndTime == "" {
 				isInProgress = true
@@ -78,12 +65,7 @@ func FilterEvents(gameEvents []Event, label string) []Event {
 		} else if gameEvent.Label == "upcoming" {
 			isWaiting := false
 			if gameEvent.StartTime != "" {
-				var startTime time.Time
-				if gameEvent.IsLocaleTime {
-					startTime, _ = time.ParseInLocation("2006-01-02T15:04:05Z", gameEvent.StartTime, loc)
-				} else {
-					startTime, _ = time.Parse(time.RFC3339, gameEvent.StartTime)
-				}
+				startTime := timeUtils.ToTimeInstance(gameEvent.StartTime, gameEvent.IsLocaleTime)
 				isWaiting = int(time.Now().Sub(startTime).Minutes()) < 0
 			}
 
