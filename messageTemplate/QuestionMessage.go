@@ -60,7 +60,7 @@ func GenerateQuestionListMessages(botBasicID string) []linebot.SendingMessage {
 						},
 						&linebot.URIAction{
 							Label: "巴哈姆特討論串",
-							URI:   "https://forum.gamer.com.tw/B.php?bsn=29659",
+							URI:   "https://forum.gamer.com.tw/C.php?bsn=29659&snA=40930",
 						},
 					},
 				},
