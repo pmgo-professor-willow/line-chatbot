@@ -37,7 +37,7 @@ func GenerateVideoChannelsMessages(channels []gd.Channel) []linebot.SendingMessa
 
 	return []linebot.SendingMessage{
 		linebot.NewTextMessage(
-			"你想要撥放誰的影片？",
+			"你想要播放誰的影片？",
 		).WithQuickReplies(
 			linebot.NewQuickReplyItems(quickReplyItems...),
 		),
