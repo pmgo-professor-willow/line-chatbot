@@ -109,9 +109,13 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 		selectedLabel := qs.Get("rocketInvasion")
 		if selectedLabel == "list" {
 			messages = mt.GenerateRocketInvasionListMessages()
-		} else {
-			filteredRocketInvasions := gd.FilterdRocketInvasions(cache.RocketInvasions, selectedLabel)
+		} else if selectedLabel == "grunt" || selectedLabel == "special" {
+			filteredRocketInvasions := gd.FilterRocketInvasions(cache.RocketInvasions, selectedLabel)
 			messages = mt.GenerateRocketInvasionMessage(filteredRocketInvasions)
+		} else {
+			selectedCategory := selectedLabel
+			foundRocketInvasion := gd.FindRocketInvasion(cache.RocketInvasions, selectedCategory)
+			messages = mt.GenerateRocketInvasionWeaknessMessage(foundRocketInvasion)
 		}
 	} else if qs.Get("event") != "" {
 		selectedEventLabel := qs.Get("event")

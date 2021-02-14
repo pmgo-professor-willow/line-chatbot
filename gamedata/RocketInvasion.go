@@ -10,13 +10,14 @@ import (
 
 // LineupPokemon is pre-processing data from YouTube API
 type LineupPokemon struct {
-	SlotNo         int    `json:"slotNo"`
-	No             int    `json:"no"`
-	Name           string `json:"name"`
-	OriginalName   string `json:"originalName"`
-	Catchable      bool   `json:"catchable"`
-	ShinyAvailable bool   `json:"shinyAvailable"`
-	ImageURL       string `json:"imageUrl"`
+	SlotNo         int      `json:"slotNo"`
+	No             int      `json:"no"`
+	Name           string   `json:"name"`
+	OriginalName   string   `json:"originalName"`
+	Types          []string `json:"types"`
+	Catchable      bool     `json:"catchable"`
+	ShinyAvailable bool     `json:"shinyAvailable"`
+	ImageURL       string   `json:"imageUrl"`
 }
 
 // RocketInvasion is pre-processing data from YouTube API
@@ -48,11 +49,18 @@ func LoadRocketInvasions() []RocketInvasion {
 	return []RocketInvasion{}
 }
 
-// FilterdRocketInvasions filters rocket invasions by specified label
-func FilterdRocketInvasions(rocketInvasions []RocketInvasion, label string) []RocketInvasion {
+// FilterRocketInvasions filters rocket invasions by specified label
+func FilterRocketInvasions(rocketInvasions []RocketInvasion, label string) []RocketInvasion {
 	return funk.Filter(rocketInvasions, func(rocketInvasion RocketInvasion) bool {
 		isGrunt := label == "grunt" && !rocketInvasion.IsSpecial
 		isSpecial := label == "special" && rocketInvasion.IsSpecial
 		return isGrunt || isSpecial
 	}).([]RocketInvasion)
+}
+
+// FindRocketInvasion finds rocket invasion by specified category
+func FindRocketInvasion(rocketInvasions []RocketInvasion, category string) RocketInvasion {
+	return funk.Find(rocketInvasions, func(rocketInvasion RocketInvasion) bool {
+		return rocketInvasion.Category == category
+	}).(RocketInvasion)
 }
