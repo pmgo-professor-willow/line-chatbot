@@ -83,29 +83,40 @@ func WebhookFunction(w http.ResponseWriter, req *http.Request) {
 func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 	messages := []linebot.SendingMessage{}
 
-	// Refresh cache about data from cloud.
-	if time.Since(cache.UpdatedAt).Minutes() > 1 {
-		cache.RaidBosses = gd.LoadRaidBosses()
-		cache.Eggs = gd.LoadEggs()
-		cache.Researches = gd.LoadResearches()
-		cache.RocketInvasions = gd.LoadRocketInvasions()
-		cache.Events = gd.LoadEvents()
-		cache.TweetList = gd.LoadTweetList()
-		cache.Channels = gd.LoadChannels()
-		cache.UpdatedAt = time.Now()
-	}
-
 	if qs.Get("raidTier") != "" {
+		// Refresh cache about data from cloud.
+		if time.Since(cache.RaidBossesUpdatedAt).Minutes() > 1 {
+			cache.RaidBosses = gd.LoadRaidBosses()
+		}
+
 		selectedRaidTier := qs.Get("raidTier")
 		selectedRaidBosses := gd.FilterdRaidBosses(cache.RaidBosses, selectedRaidTier)
 		messages = mt.GenerateRaidBossMessages(selectedRaidBosses, selectedRaidTier)
 	} else if qs.Get("egg") != "" {
+		// Refresh cache about data from cloud.
+		if time.Since(cache.EggsUpdatedAt).Minutes() > 1 {
+			cache.Eggs = gd.LoadEggs()
+		}
+
 		selectedEggCategory := qs.Get("egg")
 		selectedEggs := gd.FilterdEggs(cache.Eggs, selectedEggCategory)
 		messages = mt.GenerateEggMessages(selectedEggs, selectedEggCategory)
-	} else if qs.Get("researches") != "" {
-		messages = mt.GenerateResearchMessages(cache.Researches)
+	} else if qs.Get("research") != "" {
+		// Refresh cache about data from cloud.
+		if time.Since(cache.ResearchesUpdatedAt).Minutes() > 1 {
+			cache.Researches = gd.LoadResearches()
+		}
+
+		selectedLabel := qs.Get("research")
+		if selectedLabel == "list" {
+			messages = mt.GenerateResearchMessages(cache.Researches)
+		}
 	} else if qs.Get("rocketInvasion") != "" {
+		// Refresh cache about data from cloud.
+		if time.Since(cache.RocketInvasionsUpdatedAt).Minutes() > 1 {
+			cache.RocketInvasions = gd.LoadRocketInvasions()
+		}
+
 		selectedLabel := qs.Get("rocketInvasion")
 		if selectedLabel == "list" {
 			messages = mt.GenerateRocketInvasionListMessages()
@@ -118,6 +129,11 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 			messages = mt.GenerateRocketInvasionWeaknessMessage(foundRocketInvasion)
 		}
 	} else if qs.Get("event") != "" {
+		// Refresh cache about data from cloud.
+		if time.Since(cache.EventsUpdatedAt).Minutes() > 1 {
+			cache.Events = gd.LoadEvents()
+		}
+
 		selectedEventLabel := qs.Get("event")
 		if selectedEventLabel == "list" {
 			messages = mt.GenerateEventListMessages()
@@ -125,22 +141,34 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 			filteredEvents := gd.FilterEvents(cache.Events, selectedEventLabel)
 			messages = mt.GenerateEventMessages(filteredEvents)
 		}
-	} else if qs.Get("graphics") != "" && qs.Get("tweetId") == "" {
-		selectedTwitterUser := qs.Get("graphics")
-		selectedUserTweets := gd.FindUserTweets(cache.TweetList, selectedTwitterUser)
-		messages = mt.GenerateGraphicCatalogMessages(selectedUserTweets)
-	} else if qs.Get("graphics") != "" && qs.Get("tweetId") != "" {
+	} else if qs.Get("graphics") != "" {
+		// Refresh cache about data from cloud.
+		if time.Since(cache.TweetListUpdatedAt).Minutes() > 1 {
+			cache.TweetList = gd.LoadTweetList()
+		}
+
 		selectedTwitterUser := qs.Get("graphics")
 		selectedTweetID := qs.Get("tweetId")
 		selectedUserTweets := gd.FindUserTweets(cache.TweetList, selectedTwitterUser)
-		selectedTweet := gd.FindTweet(selectedUserTweets.Tweets, selectedTweetID)
-		messages = mt.GenerateGraphicDetailMessages(selectedTweet, selectedTwitterUser)
-	} else if qs.Get("channels") != "" {
-		messages = mt.GenerateVideoChannelsMessages(cache.Channels)
+		if selectedTweetID == "" {
+			messages = mt.GenerateGraphicCatalogMessages(selectedUserTweets)
+		} else {
+			selectedTweet := gd.FindTweet(selectedUserTweets.Tweets, selectedTweetID)
+			messages = mt.GenerateGraphicDetailMessages(selectedTweet, selectedTwitterUser)
+		}
 	} else if qs.Get("channel") != "" {
+		// Refresh cache about data from cloud.
+		if time.Since(cache.ChannelsUpdatedAt).Minutes() > 1 {
+			cache.Channels = gd.LoadChannels()
+		}
+
 		selectedChannelName := qs.Get("channel")
-		selectedChannel := gd.FindChannel(cache.Channels, selectedChannelName)
-		messages = mt.GenerateVideosMessages(selectedChannel)
+		if selectedChannelName == "list" {
+			messages = mt.GenerateVideoChannelsMessages(cache.Channels)
+		} else {
+			selectedChannel := gd.FindChannel(cache.Channels, selectedChannelName)
+			messages = mt.GenerateVideosMessages(selectedChannel)
+		}
 	} else if qs.Get("faq") != "" {
 		selectedQuestion := qs.Get("faq")
 		if selectedQuestion == "list" {
