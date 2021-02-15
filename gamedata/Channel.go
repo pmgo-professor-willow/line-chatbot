@@ -28,7 +28,7 @@ type Channel struct {
 }
 
 // LoadChannels load data from remote JSON
-func LoadChannels() []Channel {
+func LoadChannels(cacheData *[]Channel) {
 	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-youtuber/channels.min.json")
 
 	if fetchErr == nil {
@@ -38,12 +38,9 @@ func LoadChannels() []Channel {
 		if readErr == nil {
 			channels := []Channel{}
 			json.Unmarshal(bodyBuf, &channels)
-
-			return channels
+			*cacheData = channels
 		}
 	}
-
-	return []Channel{}
 }
 
 // FindChannel finds channel by specified channel name

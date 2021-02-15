@@ -31,7 +31,7 @@ type RocketInvasion struct {
 }
 
 // LoadRocketInvasions load data from remote JSON
-func LoadRocketInvasions() []RocketInvasion {
+func LoadRocketInvasions(cacheData *[]RocketInvasion) {
 	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-thesilphroad/rocket-invasions.min.json")
 
 	if fetchErr == nil {
@@ -41,12 +41,9 @@ func LoadRocketInvasions() []RocketInvasion {
 		if readErr == nil {
 			rocketInvasions := []RocketInvasion{}
 			json.Unmarshal(bodyBuf, &rocketInvasions)
-
-			return rocketInvasions
+			*cacheData = rocketInvasions
 		}
 	}
-
-	return []RocketInvasion{}
 }
 
 // FilterRocketInvasions filters rocket invasions by specified label

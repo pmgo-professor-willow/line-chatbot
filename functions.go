@@ -87,6 +87,7 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 		// Refresh cache about data from cloud.
 		if time.Since(cache.RaidBossesUpdatedAt).Minutes() > 1 {
 			cache.RaidBosses = gd.LoadRaidBosses()
+			cache.RaidBossesUpdatedAt = time.Now()
 		}
 
 		selectedRaidTier := qs.Get("raidTier")
@@ -95,7 +96,8 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 	} else if qs.Get("egg") != "" {
 		// Refresh cache about data from cloud.
 		if time.Since(cache.EggsUpdatedAt).Minutes() > 1 {
-			cache.Eggs = gd.LoadEggs()
+			gd.LoadEggs(&cache.Eggs)
+			cache.EggsUpdatedAt = time.Now()
 		}
 
 		selectedEggCategory := qs.Get("egg")
@@ -104,7 +106,8 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 	} else if qs.Get("research") != "" {
 		// Refresh cache about data from cloud.
 		if time.Since(cache.ResearchesUpdatedAt).Minutes() > 1 {
-			cache.Researches = gd.LoadResearches()
+			gd.LoadResearches(&cache.Researches)
+			cache.ResearchesUpdatedAt = time.Now()
 		}
 
 		selectedLabel := qs.Get("research")
@@ -114,7 +117,8 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 	} else if qs.Get("rocketInvasion") != "" {
 		// Refresh cache about data from cloud.
 		if time.Since(cache.RocketInvasionsUpdatedAt).Minutes() > 1 {
-			cache.RocketInvasions = gd.LoadRocketInvasions()
+			gd.LoadRocketInvasions(&cache.RocketInvasions)
+			cache.RocketInvasionsUpdatedAt = time.Now()
 		}
 
 		selectedLabel := qs.Get("rocketInvasion")
@@ -131,7 +135,8 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 	} else if qs.Get("event") != "" {
 		// Refresh cache about data from cloud.
 		if time.Since(cache.EventsUpdatedAt).Minutes() > 1 {
-			cache.Events = gd.LoadEvents()
+			gd.LoadEvents(&cache.Events)
+			cache.EventsUpdatedAt = time.Now()
 		}
 
 		selectedEventLabel := qs.Get("event")
@@ -144,7 +149,8 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 	} else if qs.Get("graphics") != "" {
 		// Refresh cache about data from cloud.
 		if time.Since(cache.TweetListUpdatedAt).Minutes() > 1 {
-			cache.TweetList = gd.LoadTweetList()
+			gd.LoadTweetList(&cache.TweetList)
+			cache.TweetListUpdatedAt = time.Now()
 		}
 
 		selectedTwitterUser := qs.Get("graphics")
@@ -159,7 +165,8 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 	} else if qs.Get("channel") != "" {
 		// Refresh cache about data from cloud.
 		if time.Since(cache.ChannelsUpdatedAt).Minutes() > 1 {
-			cache.Channels = gd.LoadChannels()
+			gd.LoadChannels(&cache.Channels)
+			cache.ChannelsUpdatedAt = time.Now()
 		}
 
 		selectedChannelName := qs.Get("channel")

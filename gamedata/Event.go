@@ -24,7 +24,7 @@ type Event struct {
 }
 
 // LoadEvents load data from remote JSON
-func LoadEvents() []Event {
+func LoadEvents(cacheData *[]Event) {
 	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-leekduck/events.min.json")
 
 	if fetchErr == nil {
@@ -34,12 +34,9 @@ func LoadEvents() []Event {
 		if readErr == nil {
 			events := []Event{}
 			json.Unmarshal(bodyBuf, &events)
-
-			return events
+			*cacheData = events
 		}
 	}
-
-	return []Event{}
 }
 
 // FilterEvents filters game events by specified label

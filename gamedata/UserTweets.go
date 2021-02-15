@@ -32,7 +32,7 @@ type UserTweets struct {
 }
 
 // LoadTweetList load data from remote JSON
-func LoadTweetList() []UserTweets {
+func LoadTweetList(cacheData *[]UserTweets) {
 	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-tweets/tweet-list.min.json")
 
 	if fetchErr == nil {
@@ -42,12 +42,9 @@ func LoadTweetList() []UserTweets {
 		if readErr == nil {
 			tweetList := []UserTweets{}
 			json.Unmarshal(bodyBuf, &tweetList)
-
-			return tweetList
+			*cacheData = tweetList
 		}
 	}
-
-	return []UserTweets{}
 }
 
 // FindUserTweets finds user tweets by specified user

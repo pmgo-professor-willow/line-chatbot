@@ -28,7 +28,7 @@ type Research struct {
 }
 
 // LoadResearches load data from remote JSON
-func LoadResearches() []Research {
+func LoadResearches(cacheData *[]Research) {
 	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-thesilphroad/researches.min.json")
 
 	if fetchErr == nil {
@@ -36,12 +36,9 @@ func LoadResearches() []Research {
 		bodyBuf, readErr := ioutil.ReadAll(resp.Body)
 
 		if readErr == nil {
-			researchs := []Research{}
-			json.Unmarshal(bodyBuf, &researchs)
-
-			return researchs
+			researches := []Research{}
+			json.Unmarshal(bodyBuf, &researches)
+			*cacheData = researches
 		}
 	}
-
-	return []Research{}
 }

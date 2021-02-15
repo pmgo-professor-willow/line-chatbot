@@ -24,7 +24,7 @@ type Egg struct {
 }
 
 // LoadEggs load data from remote JSON
-func LoadEggs() []Egg {
+func LoadEggs(cacheData *[]Egg) {
 	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-leekduck/eggs.min.json")
 
 	if fetchErr == nil {
@@ -34,12 +34,9 @@ func LoadEggs() []Egg {
 		if readErr == nil {
 			eggs := []Egg{}
 			json.Unmarshal(bodyBuf, &eggs)
-
-			return eggs
+			*cacheData = eggs
 		}
 	}
-
-	return []Egg{}
 }
 
 // FilterdEggs filters eggs by specified category
