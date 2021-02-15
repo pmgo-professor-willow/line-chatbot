@@ -15,6 +15,7 @@ import (
 )
 
 var botInfo *linebot.BotInfoResponse
+var cache = gd.GetCache()
 
 // WebhookFunction is base LINE webhook entry
 func WebhookFunction(w http.ResponseWriter, req *http.Request) {
@@ -80,7 +81,6 @@ func WebhookFunction(w http.ResponseWriter, req *http.Request) {
 
 // PostbackReply will reply messages by postback
 func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
-	cache := gd.GetCache()
 	messages := []linebot.SendingMessage{}
 
 	// Refresh cache about data from cloud.
