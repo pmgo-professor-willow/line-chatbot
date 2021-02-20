@@ -6,12 +6,15 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+	"strings"
 	"time"
 
 	gd "pmgo-professor-willow/lineChatbot/gamedata"
 	mt "pmgo-professor-willow/lineChatbot/messageTemplate"
+	mtUtils "pmgo-professor-willow/lineChatbot/messageTemplate/utils"
 
 	"github.com/line/line-bot-sdk-go/linebot"
+	"github.com/thoas/go-funk"
 )
 
 var botInfo *linebot.BotInfoResponse
@@ -90,9 +93,21 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 			cache.RaidBossesUpdatedAt = time.Now()
 		}
 
-		selectedRaidTier := qs.Get("raidTier")
-		selectedRaidBosses := gd.FilterdRaidBosses(cache.RaidBosses, selectedRaidTier)
-		messages = mt.GenerateRaidBossMessages(selectedRaidBosses, selectedRaidTier)
+		selectedRaidTierRaw := qs.Get("raidTier")
+		selectedRaidTiers := strings.Split(selectedRaidTierRaw, ",")
+
+		funk.ForEach(selectedRaidTiers, func(selectedRaidTier string) {
+			selectedRaidBosses := gd.FilterdRaidBosses(cache.RaidBosses, selectedRaidTier)
+			messages = append(
+				messages,
+				mt.GenerateRaidBossMessages(selectedRaidBosses, selectedRaidTier)...,
+			)
+		})
+
+		// If empty.
+		if mtUtils.IsEmpty(messages) {
+			messages = mtUtils.GenerateEmptyReasonMessage()
+		}
 	} else if qs.Get("egg") != "" {
 		// Refresh cache about data from cloud.
 		if time.Since(cache.EggsUpdatedAt).Minutes() > 1 {
