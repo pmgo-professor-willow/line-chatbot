@@ -6,6 +6,8 @@ import (
 
 // DataCache has all remote data and last updated time
 type DataCache struct {
+	OfficialPosts            []OfficialPost
+	OfficialPostsUpdatedAt   time.Time
 	RaidBosses               []RaidBoss
 	RaidBossesUpdatedAt      time.Time
 	Eggs                     []Egg
@@ -25,6 +27,8 @@ type DataCache struct {
 // GetCache stores data from remote
 func GetCache() *DataCache {
 	return &DataCache{
+		OfficialPosts:            []OfficialPost{},
+		OfficialPostsUpdatedAt:   time.Now().AddDate(0, 0, -1),
 		RaidBosses:               []RaidBoss{},
 		RaidBossesUpdatedAt:      time.Now().AddDate(0, 0, -1),
 		Eggs:                     []Egg{},

@@ -31,7 +31,7 @@ type RaidBoss struct {
 }
 
 // LoadRaidBosses load data from remote JSON
-func LoadRaidBosses() []RaidBoss {
+func LoadRaidBosses(cacheData *[]RaidBoss) {
 	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-leekduck/raid-bosses.min.json")
 
 	if fetchErr == nil {
@@ -39,14 +39,11 @@ func LoadRaidBosses() []RaidBoss {
 		bodyBuf, readErr := ioutil.ReadAll(resp.Body)
 
 		if readErr == nil {
-			events := []RaidBoss{}
-			json.Unmarshal(bodyBuf, &events)
-
-			return events
+			raidBosses := []RaidBoss{}
+			json.Unmarshal(bodyBuf, &raidBosses)
+			*cacheData = raidBosses
 		}
 	}
-
-	return []RaidBoss{}
 }
 
 // FilterdRaidBosses filters raid bosses by specified tier

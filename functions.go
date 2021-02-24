@@ -86,10 +86,26 @@ func WebhookFunction(w http.ResponseWriter, req *http.Request) {
 func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 	messages := []linebot.SendingMessage{}
 
-	if qs.Get("raidTier") != "" {
+	if qs.Get("officialPost") != "" {
+		// Refresh cache about data from cloud.
+		if time.Since(cache.OfficialPostsUpdatedAt).Minutes() > 1 {
+			gd.LoadOfficialPosts(&cache.OfficialPosts)
+			cache.OfficialPostsUpdatedAt = time.Now()
+		}
+
+		selectedPost := qs.Get("officialPost")
+		if selectedPost == "list" {
+			messages = mt.GenerateOfficialPostMessages(cache.OfficialPosts)
+		}
+
+		// If empty.
+		if mtUtils.IsEmpty(messages) {
+			messages = mtUtils.GenerateEmptyReasonMessage()
+		}
+	} else if qs.Get("raidTier") != "" {
 		// Refresh cache about data from cloud.
 		if time.Since(cache.RaidBossesUpdatedAt).Minutes() > 1 {
-			cache.RaidBosses = gd.LoadRaidBosses()
+			gd.LoadRaidBosses(&cache.RaidBosses)
 			cache.RaidBossesUpdatedAt = time.Now()
 		}
 
