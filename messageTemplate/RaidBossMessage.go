@@ -10,6 +10,50 @@ import (
 	"github.com/thoas/go-funk"
 )
 
+// GenerateRaidTierListMessages sends LINE quick reply messages
+func GenerateRaidTierListMessages() []linebot.SendingMessage {
+	return []linebot.SendingMessage{
+		linebot.NewTextMessage(
+			"你想要知道什麼星數的團體戰頭目資訊？",
+		).WithQuickReplies(
+			linebot.NewQuickReplyItems(
+				linebot.NewQuickReplyButton(
+					"https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/raids/tier-5.png",
+					&linebot.PostbackAction{
+						Label:       "五星團體戰",
+						Data:        "raidTier=5",
+						DisplayText: "我想知道五星團體戰的頭目資訊",
+					},
+				),
+				linebot.NewQuickReplyButton(
+					"https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/raids/tier-mega.png",
+					&linebot.PostbackAction{
+						Label:       "MEGA 團體戰",
+						Data:        "raidTier=mega",
+						DisplayText: "我想知道 MEGA 團體戰的頭目資訊",
+					},
+				),
+				linebot.NewQuickReplyButton(
+					"https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/raids/tier-3.png",
+					&linebot.PostbackAction{
+						Label:       "三、四星團體戰",
+						Data:        "raidTier=3,4",
+						DisplayText: "我想知道三、四星團體戰的頭目資訊",
+					},
+				),
+				linebot.NewQuickReplyButton(
+					"https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/raids/tier-1.png",
+					&linebot.PostbackAction{
+						Label:       "一、二星團體戰",
+						Data:        "raidTier=1,2",
+						DisplayText: "我想知道一、二星團體戰的頭目資訊",
+					},
+				),
+			),
+		),
+	}
+}
+
 // GenerateRaidBossMessages converts raid bosses to LINE flex messages
 func GenerateRaidBossMessages(raidBosses []gd.RaidBoss, raidTier string) []linebot.SendingMessage {
 	bossChunks := funk.Chunk(raidBosses, 10).([][]gd.RaidBoss)

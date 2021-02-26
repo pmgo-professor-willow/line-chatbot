@@ -11,6 +11,74 @@ import (
 	"github.com/thoas/go-funk"
 )
 
+// GenerateEggListMessages sends LINE quick reply messages
+func GenerateEggListMessages() []linebot.SendingMessage {
+	return []linebot.SendingMessage{
+		linebot.NewTextMessage(
+			"你想要知道哪一種寶可夢蛋資訊？",
+		).WithQuickReplies(
+			linebot.NewQuickReplyItems(
+				linebot.NewQuickReplyButton(
+					"https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/eggs/12km.png",
+					&linebot.PostbackAction{
+						Label:       "12 公里",
+						Data:        "egg=12km",
+						DisplayText: "我想知道擊敗火箭隊幹部取得的獎勵 12 公里蛋\n(可儲存於獎勵儲存空間)",
+					},
+				),
+				linebot.NewQuickReplyButton(
+					"https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/eggs/10km.png",
+					&linebot.PostbackAction{
+						Label:       "10 公里",
+						Data:        "egg=10km",
+						DisplayText: "我想知道補給站取得的 10 公里蛋",
+					},
+				),
+				linebot.NewQuickReplyButton(
+					"https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/eggs/7km.png",
+					&linebot.PostbackAction{
+						Label:       "7 公里",
+						Data:        "egg=7km",
+						DisplayText: "我想知道透過好友禮物取得的 7 公里蛋",
+					},
+				),
+				linebot.NewQuickReplyButton(
+					"https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/eggs/5km.png",
+					&linebot.PostbackAction{
+						Label:       "5 公里",
+						Data:        "egg=5km",
+						DisplayText: "我想知道補給站取得的 5 公里蛋",
+					},
+				),
+				linebot.NewQuickReplyButton(
+					"https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/eggs/2km.png",
+					&linebot.PostbackAction{
+						Label:       "2 公里",
+						Data:        "egg=2km",
+						DisplayText: "我想知道補給站取得的 2 公里蛋",
+					},
+				),
+				linebot.NewQuickReplyButton(
+					"https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/eggs/10km.png",
+					&linebot.PostbackAction{
+						Label:       "時時刻刻冒險 10 公里",
+						Data:        "egg=時時刻刻冒險 10km",
+						DisplayText: "我想知道時時刻刻冒險取得的獎勵 10 公里蛋\n(可儲存於獎勵儲存空間)",
+					},
+				),
+				linebot.NewQuickReplyButton(
+					"https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/eggs/5km.png",
+					&linebot.PostbackAction{
+						Label:       "時時刻刻冒險 5 公里",
+						Data:        "egg=時時刻刻冒險 5km",
+						DisplayText: "我想知道時時刻刻冒險取得的獎勵 5 公里蛋\n(可儲存於獎勵儲存空間)",
+					},
+				),
+			),
+		),
+	}
+}
+
 // GenerateEggMessages converts eggs to LINE flex messages
 func GenerateEggMessages(eggs []gd.Egg, eggCategory string) []linebot.SendingMessage {
 	if utils.IsEmpty(eggs) {

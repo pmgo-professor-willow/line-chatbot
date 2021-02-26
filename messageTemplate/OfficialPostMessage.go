@@ -13,7 +13,7 @@ func GenerateOfficialPostMessages(officialPosts []gd.OfficialPost) []linebot.Sen
 
 	return funk.Map(postChunks, func(postChunk []gd.OfficialPost) linebot.SendingMessage {
 		return linebot.NewFlexMessage(
-			"進行的官方公告整理",
+			"近期的官方公告整理",
 			&linebot.CarouselContainer{
 				Type:     linebot.FlexContainerTypeCarousel,
 				Contents: funk.Map(postChunk, GenerateOfficialPostBubbleMessage).([]*linebot.BubbleContainer),

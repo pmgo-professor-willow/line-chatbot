@@ -110,19 +110,23 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 		}
 
 		selectedRaidTierRaw := qs.Get("raidTier")
-		selectedRaidTiers := strings.Split(selectedRaidTierRaw, ",")
+		if selectedRaidTierRaw == "list" {
+			messages = mt.GenerateRaidTierListMessages()
+		} else {
+			selectedRaidTiers := strings.Split(selectedRaidTierRaw, ",")
 
-		funk.ForEach(selectedRaidTiers, func(selectedRaidTier string) {
-			selectedRaidBosses := gd.FilterdRaidBosses(cache.RaidBosses, selectedRaidTier)
-			messages = append(
-				messages,
-				mt.GenerateRaidBossMessages(selectedRaidBosses, selectedRaidTier)...,
-			)
-		})
+			funk.ForEach(selectedRaidTiers, func(selectedRaidTier string) {
+				selectedRaidBosses := gd.FilterdRaidBosses(cache.RaidBosses, selectedRaidTier)
+				messages = append(
+					messages,
+					mt.GenerateRaidBossMessages(selectedRaidBosses, selectedRaidTier)...,
+				)
+			})
 
-		// If empty.
-		if mtUtils.IsEmpty(messages) {
-			messages = mtUtils.GenerateEmptyReasonMessage()
+			// If empty.
+			if mtUtils.IsEmpty(messages) {
+				messages = mtUtils.GenerateEmptyReasonMessage()
+			}
 		}
 	} else if qs.Get("egg") != "" {
 		// Refresh cache about data from cloud.
@@ -132,8 +136,12 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 		}
 
 		selectedEggCategory := qs.Get("egg")
-		selectedEggs := gd.FilterdEggs(cache.Eggs, selectedEggCategory)
-		messages = mt.GenerateEggMessages(selectedEggs, selectedEggCategory)
+		if selectedEggCategory == "list" {
+			messages = mt.GenerateEggListMessages()
+		} else {
+			selectedEggs := gd.FilterdEggs(cache.Eggs, selectedEggCategory)
+			messages = mt.GenerateEggMessages(selectedEggs, selectedEggCategory)
+		}
 	} else if qs.Get("research") != "" {
 		// Refresh cache about data from cloud.
 		if time.Since(cache.ResearchesUpdatedAt).Minutes() > 1 {

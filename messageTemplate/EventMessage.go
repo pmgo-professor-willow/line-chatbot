@@ -23,7 +23,7 @@ type RemainingTime struct {
 func GenerateEventListMessages() []linebot.SendingMessage {
 	return []linebot.SendingMessage{
 		linebot.NewTextMessage(
-			"想知道進行中還是即將結束的活動？ (英文版資訊)",
+			"想知道進行中還是即將結束的活動？\n(英文版資訊)",
 		).WithQuickReplies(
 			linebot.NewQuickReplyItems(
 				linebot.NewQuickReplyButton(
