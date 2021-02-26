@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"sort"
 	"time"
 
 	timeUtils "pmgo-professor-willow/lineChatbot/utils"
@@ -41,7 +42,7 @@ func LoadEvents(cacheData *[]Event) {
 
 // FilterEvents filters game events by specified label
 func FilterEvents(gameEvents []Event, label string) []Event {
-	return funk.Filter(gameEvents, func(gameEvent Event) bool {
+	filteredEvents := funk.Filter(gameEvents, func(gameEvent Event) bool {
 		isSameLabel := gameEvent.Label == label
 		isMatchedEvent := false
 
@@ -71,4 +72,16 @@ func FilterEvents(gameEvents []Event, label string) []Event {
 
 		return isMatchedEvent
 	}).([]Event)
+
+	if label == "current" {
+		sort.SliceStable(filteredEvents, func(i, j int) bool {
+			return filteredEvents[i].EndTime < filteredEvents[j].EndTime
+		})
+	} else if label == "upcoming" {
+		sort.SliceStable(filteredEvents, func(i, j int) bool {
+			return filteredEvents[i].StartTime < filteredEvents[j].StartTime
+		})
+	}
+
+	return filteredEvents
 }
