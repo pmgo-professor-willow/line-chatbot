@@ -47,6 +47,54 @@ func GenerateEventListMessages() []linebot.SendingMessage {
 	}
 }
 
+var allEventTypes = []string{
+	"社群日",
+	"寶可夢聚焦時刻",
+	"團體戰晚餐約會",
+	"獎勵時刻",
+	"團體戰",
+	"GO 對戰聯盟",
+	"團體戰日",
+	"田野調查突破性獎勵",
+	"特殊調查",
+	"活動",
+	"其他活動",
+}
+
+// GenerateEventTypeListMessages sends LINE quick reply messages
+func GenerateEventTypeListMessages(eventLabel string) []linebot.SendingMessage {
+	return []linebot.SendingMessage{
+		linebot.NewTextMessage(
+			"要選擇哪種類型的活動？\n(英文版資訊)",
+		).WithQuickReplies(
+			linebot.NewQuickReplyItems(
+				append(
+					[]*linebot.QuickReplyButton{
+						linebot.NewQuickReplyButton(
+							"",
+							&linebot.PostbackAction{
+								Label:       "全部",
+								Data:        fmt.Sprintf("event=%s,", eventLabel),
+								DisplayText: "全部",
+							},
+						),
+					},
+					funk.Map(allEventTypes, func(eventType string) *linebot.QuickReplyButton {
+						return linebot.NewQuickReplyButton(
+							"",
+							&linebot.PostbackAction{
+								Label:       eventType,
+								Data:        fmt.Sprintf("event=%s,%s", eventLabel, eventType),
+								DisplayText: eventType,
+							},
+						)
+					}).([]*linebot.QuickReplyButton)...,
+				)...,
+			),
+		),
+	}
+}
+
 // GenerateEventMessages converts game events to LINE flex messages
 func GenerateEventMessages(gameEvents []gd.Event) []linebot.SendingMessage {
 	if utils.IsEmpty(gameEvents) {

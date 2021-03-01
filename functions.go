@@ -178,12 +178,24 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 			cache.EventsUpdatedAt = time.Now()
 		}
 
-		selectedEventLabel := qs.Get("event")
-		if selectedEventLabel == "list" {
+		selectedEventRaw := qs.Get("event")
+		if selectedEventRaw == "list" {
 			messages = mt.GenerateEventListMessages()
 		} else {
-			filteredEvents := gd.FilterEvents(cache.Events, selectedEventLabel)
-			messages = mt.GenerateEventMessages(filteredEvents)
+			selectedEvents := strings.Split(selectedEventRaw, ",")
+			selectedEventLabel := selectedEvents[0]
+			var filteredEvents []gd.Event
+
+			if selectedEventRaw == "upcoming" {
+				messages = mt.GenerateEventTypeListMessages(selectedEventLabel)
+			} else if len(selectedEvents) == 1 {
+				filteredEvents = gd.FilterEvents(cache.Events, selectedEventLabel, nil)
+				messages = mt.GenerateEventMessages(filteredEvents)
+			} else {
+				selectedEventType := selectedEvents[1]
+				filteredEvents = gd.FilterEvents(cache.Events, selectedEventLabel, selectedEventType)
+				messages = mt.GenerateEventMessages(filteredEvents)
+			}
 		}
 	} else if qs.Get("graphics") != "" {
 		// Refresh cache about data from cloud.

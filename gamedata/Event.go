@@ -41,10 +41,14 @@ func LoadEvents(cacheData *[]Event) {
 }
 
 // FilterEvents filters game events by specified label
-func FilterEvents(gameEvents []Event, label string) []Event {
+func FilterEvents(gameEvents []Event, eventLabel string, eventType interface{}) []Event {
 	filteredEvents := funk.Filter(gameEvents, func(gameEvent Event) bool {
-		isSameLabel := gameEvent.Label == label
+		isSameLabel := gameEvent.Label == eventLabel
 		isMatchedEvent := false
+
+		if eventType != nil && eventType != "" && gameEvent.Type != eventType {
+			return false
+		}
 
 		if gameEvent.Label == "current" {
 			isInProgress := false
@@ -73,11 +77,11 @@ func FilterEvents(gameEvents []Event, label string) []Event {
 		return isMatchedEvent
 	}).([]Event)
 
-	if label == "current" {
+	if eventLabel == "current" {
 		sort.SliceStable(filteredEvents, func(i, j int) bool {
 			return filteredEvents[i].EndTime < filteredEvents[j].EndTime
 		})
-	} else if label == "upcoming" {
+	} else if eventLabel == "upcoming" {
 		sort.SliceStable(filteredEvents, func(i, j int) bool {
 			return filteredEvents[i].StartTime < filteredEvents[j].StartTime
 		})
