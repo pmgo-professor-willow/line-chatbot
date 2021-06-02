@@ -40,16 +40,52 @@ func GenerateResearchMessages(researches []gd.Research) []linebot.SendingMessage
 			"田野調查課題獎勵一覽",
 			&linebot.CarouselContainer{
 				Type: linebot.FlexContainerTypeCarousel,
-				Contents: funk.Map(categories, func(category Category) *linebot.BubbleContainer {
-					return GenerateResearchBubbleMessage(category, collections[category])
-				}).([]*linebot.BubbleContainer),
+				Contents: funk.FlattenDeep(
+					funk.Map(categories, func(category Category) []*linebot.BubbleContainer {
+						recommandMaxRow := 10
+						totalRowLength := 0
+						researchChunks := [][]gd.Research{}
+
+						funk.ForEach(collections[category], func(research gd.Research) {
+							rowLength := len(research.RewardPokemons)
+							isFirstResearch := len(researchChunks) == 0 && totalRowLength == 0
+							isOutOfRecommandation := totalRowLength+rowLength > recommandMaxRow
+
+							if isFirstResearch || isOutOfRecommandation {
+								researchChunks = append(
+									researchChunks,
+									[]gd.Research{
+										research,
+									},
+								)
+								totalRowLength = 0
+							} else {
+								researchChunks[len(researchChunks)-1] = append(
+									researchChunks[len(researchChunks)-1],
+									research,
+								)
+								totalRowLength += rowLength
+							}
+						})
+
+						return funk.Map(researchChunks, func(researches []gd.Research) *linebot.BubbleContainer {
+							index := funk.IndexOf(researchChunks, researches)
+							title := string(category)
+							if index > 0 {
+								title = fmt.Sprintf("%s-%d", title, index+1)
+							}
+
+							return GenerateResearchBubbleMessage(title, researches)
+						}).([]*linebot.BubbleContainer)
+					}).([][]*linebot.BubbleContainer),
+				).([]*linebot.BubbleContainer),
 			},
 		),
 	}
 }
 
 // GenerateResearchBubbleMessage converts researches to LINE bubble message
-func GenerateResearchBubbleMessage(category Category, researches []gd.Research) *linebot.BubbleContainer {
+func GenerateResearchBubbleMessage(title string, researches []gd.Research) *linebot.BubbleContainer {
 	return &linebot.BubbleContainer{
 		Type: linebot.FlexContainerTypeBubble,
 		Size: linebot.FlexBubbleSizeTypeGiga,
@@ -59,7 +95,7 @@ func GenerateResearchBubbleMessage(category Category, researches []gd.Research) 
 			Contents: []linebot.FlexComponent{
 				&linebot.TextComponent{
 					Type:   linebot.FlexComponentTypeText,
-					Text:   string(category),
+					Text:   title,
 					Size:   linebot.FlexTextSizeTypeLg,
 					Align:  linebot.FlexComponentAlignTypeEnd,
 					Margin: linebot.FlexComponentMarginTypeNone,
