@@ -3,7 +3,7 @@ package messageTemplate
 import (
 	"fmt"
 
-	"github.com/line/line-bot-sdk-go/linebot"
+	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
 // GenerateWelcomMessages sends to LINE image messages

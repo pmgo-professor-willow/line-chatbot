@@ -13,7 +13,7 @@ import (
 	mt "pmgo-professor-willow/lineChatbot/messageTemplate"
 	mtUtils "pmgo-professor-willow/lineChatbot/messageTemplate/utils"
 
-	"github.com/line/line-bot-sdk-go/linebot"
+	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"github.com/thoas/go-funk"
 )
 
@@ -151,7 +151,10 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 
 		selectedLabel := qs.Get("research")
 		if selectedLabel == "list" {
-			messages = mt.GenerateResearchMessages(cache.Researches)
+			messages = mt.GenerateResearchListMessages()
+		} else {
+			filteredResearches := gd.FilterResearches(cache.Researches, selectedLabel)
+			messages = mt.GenerateResearchMessages(filteredResearches)
 		}
 	} else if qs.Get("rocketInvasion") != "" {
 		// Refresh cache about data from cloud.

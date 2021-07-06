@@ -7,7 +7,7 @@ import (
 	"pmgo-professor-willow/lineChatbot/messageTemplate/utils"
 	pokemonUtils "pmgo-professor-willow/lineChatbot/utils"
 
-	"github.com/line/line-bot-sdk-go/linebot"
+	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"github.com/thoas/go-funk"
 )
 

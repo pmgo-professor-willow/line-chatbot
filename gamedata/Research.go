@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/thoas/go-funk"
 )
 
 // ResearchRewardPokemon is pre-processing data from The Silph Road website
@@ -41,4 +43,14 @@ func LoadResearches(cacheData *[]Research) {
 			*cacheData = researches
 		}
 	}
+}
+
+// FilterResearches filters researach by specified label
+func FilterResearches(researches []Research, label string) []Research {
+	return funk.Filter(researches, func(research Research) bool {
+		isEvent := label == "event" && research.Category == "活動限定"
+		isNotEvent := label == "others" && research.Category != "活動限定"
+
+		return isEvent || isNotEvent
+	}).([]Research)
 }

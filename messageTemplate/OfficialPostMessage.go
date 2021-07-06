@@ -3,7 +3,7 @@ package messageTemplate
 import (
 	gd "pmgo-professor-willow/lineChatbot/gamedata"
 
-	"github.com/line/line-bot-sdk-go/linebot"
+	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"github.com/thoas/go-funk"
 )
 

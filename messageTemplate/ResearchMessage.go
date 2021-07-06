@@ -6,12 +6,40 @@ import (
 	gd "pmgo-professor-willow/lineChatbot/gamedata"
 	"pmgo-professor-willow/lineChatbot/messageTemplate/utils"
 
-	"github.com/line/line-bot-sdk-go/linebot"
+	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"github.com/thoas/go-funk"
 )
 
 type Category string
 type ResearchCollection map[Category][]gd.Research
+
+// GenerateResearchListMessages sends LINE quick reply messages
+func GenerateResearchListMessages() []linebot.SendingMessage {
+	return []linebot.SendingMessage{
+		linebot.NewTextMessage(
+			"想知道哪一類的田野調查課題呢？",
+		).WithQuickReplies(
+			linebot.NewQuickReplyItems(
+				linebot.NewQuickReplyButton(
+					"https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/researches/event.png",
+					&linebot.PostbackAction{
+						Label:       "活動限定課題",
+						Data:        "research=event",
+						DisplayText: "請列出活動限定課題。",
+					},
+				),
+				linebot.NewQuickReplyButton(
+					"",
+					&linebot.PostbackAction{
+						Label:       "其他課題",
+						Data:        "research=others",
+						DisplayText: "請列出其他課題。",
+					},
+				),
+			),
+		),
+	}
+}
 
 // GenerateResearchMessages converts researches to LINE flex messages
 func GenerateResearchMessages(researches []gd.Research) []linebot.SendingMessage {
@@ -42,7 +70,7 @@ func GenerateResearchMessages(researches []gd.Research) []linebot.SendingMessage
 				Type: linebot.FlexContainerTypeCarousel,
 				Contents: funk.FlattenDeep(
 					funk.Map(categories, func(category Category) []*linebot.BubbleContainer {
-						recommandMaxRow := 10
+						recommandMaxRow := 9
 						totalRowLength := 0
 						researchChunks := [][]gd.Research{}
 
@@ -58,7 +86,7 @@ func GenerateResearchMessages(researches []gd.Research) []linebot.SendingMessage
 										research,
 									},
 								)
-								totalRowLength = 0
+								totalRowLength = rowLength
 							} else {
 								researchChunks[len(researchChunks)-1] = append(
 									researchChunks[len(researchChunks)-1],
