@@ -171,6 +171,8 @@ func GenerateEggFlexComponent(egg gd.Egg) []linebot.FlexComponent {
 	pokemonName = strings.Replace(pokemonName, "伽勒爾", "[伽]", 1)
 	pokemonName = strings.Replace(pokemonName, "阿羅拉", "[阿]", 1)
 
+	hatchingRate := egg.Rate
+
 	avatarContents := []linebot.FlexComponent{}
 
 	// Left of avatar row
@@ -248,6 +250,13 @@ func GenerateEggFlexComponent(egg gd.Egg) []linebot.FlexComponent {
 					Type:  linebot.FlexComponentTypeText,
 					Text:  pokemonName,
 					Size:  linebot.FlexTextSizeTypeMd,
+					Align: linebot.FlexComponentAlignTypeCenter,
+					Color: "#FFFFFF",
+				},
+				&linebot.TextComponent{
+					Type:  linebot.FlexComponentTypeText,
+					Text:  fmt.Sprintf(" (%g%)", hatchingRate),
+					Size:  linebot.FlexTextSizeTypeSm,
 					Align: linebot.FlexComponentAlignTypeCenter,
 					Color: "#FFFFFF",
 				},

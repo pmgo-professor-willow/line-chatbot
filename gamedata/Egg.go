@@ -53,7 +53,7 @@ func CreateDummyEgg() Egg {
 		Name:           " ",
 		OriginalName:   "",
 		Category:       "",
-		ImageURL:       "https://sample.com/dummy.png",
+		ImageURL:       "https://example.com/dummy.png",
 		ShinyAvailable: false,
 		Regional:       false,
 		CP: struct {
@@ -63,5 +63,6 @@ func CreateDummyEgg() Egg {
 			Max: 0,
 			Min: 0,
 		},
+		Rate:           0,
 	}
 }
