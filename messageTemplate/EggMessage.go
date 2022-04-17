@@ -252,7 +252,7 @@ func GenerateEggFlexComponent(egg gd.Egg) []linebot.FlexComponent {
 		},
 	}
 	
-	if hatchingRate != nil {
+	if hatchingRate > 0 {
 		rowContents = append(
 			rowContents,
 			&linebot.TextComponent{
