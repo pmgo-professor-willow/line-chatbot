@@ -255,7 +255,7 @@ func GenerateEggFlexComponent(egg gd.Egg) []linebot.FlexComponent {
 				},
 				&linebot.TextComponent{
 					Type:  linebot.FlexComponentTypeText,
-					Text:  fmt.Sprintf(" (%g%)", hatchingRate),
+					Text:  fmt.Sprintf(" (%g\%)", hatchingRate),
 					Size:  linebot.FlexTextSizeTypeSm,
 					Align: linebot.FlexComponentAlignTypeCenter,
 					Color: "#FFFFFF",
