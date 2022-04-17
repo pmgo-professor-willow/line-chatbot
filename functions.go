@@ -39,7 +39,7 @@ func WebhookFunction(w http.ResponseWriter, req *http.Request) {
 		switch event.Type {
 		case linebot.EventTypeFollow:
 			profile, _ := client.GetProfile(event.Source.UserID).Do()
-			messages := mt.GenerateWelcomMessages(profile.DisplayName)
+			messages := mt.GenerateWelcomeMessages(profile.DisplayName)
 
 			replyMessageCall := client.ReplyMessage(event.ReplyToken, messages...)
 
@@ -67,6 +67,12 @@ func WebhookFunction(w http.ResponseWriter, req *http.Request) {
 						client,
 						fmt.Sprintf("%s: %s", profile.DisplayName, message.Text),
 					)
+					
+					messages := mt.GenerateAnsweringMessage(profile.DisplayName)
+					replyMessageCall := client.ReplyMessage(event.ReplyToken, messages...)
+					if _, err := replyMessageCall.Do(); err != nil {
+						fmt.Println(err)
+					}
 					break
 				}
 				break

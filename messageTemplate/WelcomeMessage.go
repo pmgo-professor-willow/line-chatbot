@@ -6,8 +6,8 @@ import (
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
-// GenerateWelcomMessages sends to LINE image messages
-func GenerateWelcomMessages(trainerName string) []linebot.SendingMessage {
+// GenerateWelcomeMessages sends to LINE image messages
+func GenerateWelcomeMessages(trainerName string) []linebot.SendingMessage {
 	return []linebot.SendingMessage{
 		linebot.NewTextMessage(
 			fmt.Sprintf(
