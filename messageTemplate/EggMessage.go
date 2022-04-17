@@ -236,32 +236,41 @@ func GenerateEggFlexComponent(egg gd.Egg) []linebot.FlexComponent {
 		)
 	}
 
+	// Avatar + Name + Rate
+	rowContents := []linebot.FlexComponent{
+		&linebot.BoxComponent{
+			Type:     linebot.FlexComponentTypeBox,
+			Layout:   linebot.FlexBoxLayoutTypeHorizontal,
+			Contents: avatarContents,
+		},
+		&linebot.TextComponent{
+			Type:  linebot.FlexComponentTypeText,
+			Text:  pokemonName,
+			Size:  linebot.FlexTextSizeTypeMd,
+			Align: linebot.FlexComponentAlignTypeCenter,
+			Color: "#FFFFFF",
+		},
+	}
+	
+	if hatchingRate != nil {
+		rowContents = append(
+			rowContents,
+			&linebot.TextComponent{
+				Type:  linebot.FlexComponentTypeText,
+				Text:  fmt.Sprintf(" (%g%%)", hatchingRate),
+				Size:  linebot.FlexTextSizeTypeXs,
+				Align: linebot.FlexComponentAlignTypeCenter,
+				Color: "#EFEFEF",
+			},
+		)
+	}
+
 	return []linebot.FlexComponent{
 		&linebot.BoxComponent{
-			Type:   linebot.FlexComponentTypeBox,
-			Layout: linebot.FlexBoxLayoutTypeVertical,
-			Contents: []linebot.FlexComponent{
-				&linebot.BoxComponent{
-					Type:     linebot.FlexComponentTypeBox,
-					Layout:   linebot.FlexBoxLayoutTypeHorizontal,
-					Contents: avatarContents,
-				},
-				&linebot.TextComponent{
-					Type:  linebot.FlexComponentTypeText,
-					Text:  pokemonName,
-					Size:  linebot.FlexTextSizeTypeMd,
-					Align: linebot.FlexComponentAlignTypeCenter,
-					Color: "#FFFFFF",
-				},
-				&linebot.TextComponent{
-					Type:  linebot.FlexComponentTypeText,
-					Text:  fmt.Sprintf(" (%g%%)", hatchingRate),
-					Size:  linebot.FlexTextSizeTypeSm,
-					Align: linebot.FlexComponentAlignTypeCenter,
-					Color: "#FFFFFF",
-				},
-			},
-			Margin: linebot.FlexComponentMarginTypeNone,
+			Type:     linebot.FlexComponentTypeBox,
+			Layout:   linebot.FlexBoxLayoutTypeVertical,
+			Contents: rowContents,
+			Margin:   linebot.FlexComponentMarginTypeNone,
 		},
 	}
 }
