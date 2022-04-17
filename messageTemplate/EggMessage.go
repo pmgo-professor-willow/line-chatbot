@@ -62,7 +62,7 @@ func GenerateEggListMessages() []linebot.SendingMessage {
 					"https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/eggs/10km.png",
 					&linebot.PostbackAction{
 						Label:       "時時刻刻冒險 10 公里",
-						Data:        "egg=時時刻刻冒險 10km",
+						Data:        "egg=as10km",
 						DisplayText: "我想知道時時刻刻冒險取得的獎勵 10 公里蛋\n(可儲存於獎勵儲存空間)",
 					},
 				),
@@ -70,7 +70,7 @@ func GenerateEggListMessages() []linebot.SendingMessage {
 					"https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/eggs/5km.png",
 					&linebot.PostbackAction{
 						Label:       "時時刻刻冒險 5 公里",
-						Data:        "egg=時時刻刻冒險 5km",
+						Data:        "egg=as5km",
 						DisplayText: "我想知道時時刻刻冒險取得的獎勵 5 公里蛋\n(可儲存於獎勵儲存空間)",
 					},
 				),
