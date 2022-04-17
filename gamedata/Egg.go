@@ -23,6 +23,7 @@ type Egg struct {
 		} `json:"cp"`
 	}
 	Rate           float32 `json:"rate"`
+}
 
 // LoadEggs load data from remote JSON
 func LoadEggs(cacheData *[]Egg) {
