@@ -20,8 +20,7 @@ type Egg struct {
 	CP             struct {
 		Min int `json:"min"`
 		Max int `json:"max"`
-		} `json:"cp"`
-	}
+	} `json:"cp"`
 	Rate           float32 `json:"rate"`
 }
 
