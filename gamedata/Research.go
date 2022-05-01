@@ -14,19 +14,30 @@ type ResearchRewardPokemon struct {
 	Name           string `json:"name"`
 	OriginalName   string `json:"originalName"`
 	ShinyAvailable bool   `json:"shinyAvailable"`
-	ImageURL       string `json:"imageUrl"`
 	CP             struct {
 		Min int `json:"min"`
 		Max int `json:"max"`
 	} `json:"cp"`
+	ImageURL string `json:"imageUrl"`
+}
+
+// ResearchRewardPokemonMegaCandy is pre-processing data from The Silph Road website
+type ResearchRewardPokemonMegaCandy struct {
+	No                int    `json:"no"`
+	Name              string `json:"name"`
+	OriginalName      string `json:"originalName"`
+	Count             int    `json:"count"`
+	ImageURL          string `json:"imageUrl"`
+	MegaCandyImageUrl string `json:"megaCandyImageUrl"`
 }
 
 // Research is pre-processing data from The Silph Road website
 type Research struct {
-	Description         string                  `json:"description"`
-	OriginalDescription string                  `json:"originalDescription"`
-	Category            string                  `json:"category"`
-	RewardPokemons      []ResearchRewardPokemon `json:"rewardPokemons"`
+	Description              string                           `json:"description"`
+	OriginalDescription      string                           `json:"originalDescription"`
+	Category                 string                           `json:"category"`
+	RewardPokemons           []ResearchRewardPokemon          `json:"rewardPokemons"`
+	RewardPokemonMegaCandies []ResearchRewardPokemonMegaCandy `json:"rewardPokemonMegaCandies"`
 }
 
 // LoadResearches load data from remote JSON

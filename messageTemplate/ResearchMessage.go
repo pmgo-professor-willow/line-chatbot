@@ -55,7 +55,8 @@ func GenerateResearchMessages(researches []gd.Research) []linebot.SendingMessage
 	// Append into collections.
 	funk.ForEach(categories, func(category Category) {
 		collections[category] = funk.Filter(researches, func(research gd.Research) bool {
-			return Category(research.Category) == category && len(research.RewardPokemons) > 0
+			// Filter RewardPokemons or RewardPokemonMegaCandies is not empty.
+			return Category(research.Category) == category && (len(research.RewardPokemons) > 0 || len(research.RewardPokemonMegaCandies) > 0)
 		}).([]gd.Research)
 	})
 	// Ignore empty collection.
@@ -75,7 +76,7 @@ func GenerateResearchMessages(researches []gd.Research) []linebot.SendingMessage
 						researchChunks := [][]gd.Research{}
 
 						funk.ForEach(collections[category], func(research gd.Research) {
-							rowLength := len(research.RewardPokemons)
+							rowLength := len(research.RewardPokemons) + len(research.RewardPokemonMegaCandies)
 							isFirstResearch := len(researchChunks) == 0 && totalRowLength == 0
 							isOutOfRecommandation := totalRowLength+rowLength > recommandMaxRow
 
@@ -194,6 +195,7 @@ func GenerateResearchFlexComponent(research gd.Research) []linebot.FlexComponent
 	contents := func() []linebot.FlexComponent {
 		pokemonAvatarContents := []linebot.FlexComponent{}
 
+		// Rewawrd pokemons.
 		for _, rewardPokemon := range research.RewardPokemons {
 			shinyAvailableText := " "
 
@@ -254,7 +256,60 @@ func GenerateResearchFlexComponent(research gd.Research) []linebot.FlexComponent
 			}
 		}
 
+		// Rewawrd mega candies of pokemons.
+		for _, rewardPokemonMegaCandy := range research.RewardPokemonMegaCandies {
+			pokemonAvatarContents = append(
+				pokemonAvatarContents,
+				&linebot.BoxComponent{
+					Type:   linebot.FlexComponentTypeBox,
+					Layout: linebot.FlexBoxLayoutTypeHorizontal,
+					Contents: []linebot.FlexComponent{
+						&linebot.ImageComponent{
+							Type:  linebot.FlexComponentTypeImage,
+							Size:  "75px",
+							URL:   rewardPokemonMegaCandy.ImageURL,
+							Align: linebot.FlexComponentAlignTypeCenter,
+						},
+						&linebot.BoxComponent{
+							Type:   linebot.FlexComponentTypeBox,
+							Layout: linebot.FlexBoxLayoutTypeHorizontal,
+							Contents: []linebot.FlexComponent{
+								&linebot.ImageComponent{
+									Type:    linebot.FlexComponentTypeImage,
+									Size:    "25px",
+									URL:     rewardPokemonMegaCandy.MegaCandyImageUrl,
+									Align:   linebot.FlexComponentAlignTypeCenter,
+									Gravity: linebot.FlexComponentGravityTypeCenter,
+								},
+								&linebot.TextComponent{
+									Type:    linebot.FlexComponentTypeText,
+									Text:    fmt.Sprintf("x %d", rewardPokemonMegaCandy.Count),
+									Size:    linebot.FlexTextSizeTypeMd,
+									Align:   linebot.FlexComponentAlignTypeStart,
+									Gravity: linebot.FlexComponentGravityTypeCenter,
+									Color:   "#FFFFFF",
+									Margin:  linebot.FlexComponentMarginTypeSm,
+								},
+							},
+						},
+					},
+					Margin: linebot.FlexComponentMarginTypeNone,
+				},
+			)
+
+			// Append separator if not last row.
+			if funk.IndexOf(research.RewardPokemonMegaCandies, rewardPokemonMegaCandy) != len(research.RewardPokemonMegaCandies)-1 {
+				pokemonAvatarContents = append(
+					pokemonAvatarContents,
+					&linebot.SeparatorComponent{
+						Color: "#ECECEC",
+					},
+				)
+			}
+		}
+
 		results := []linebot.FlexComponent{
+			// research.Description
 			&linebot.TextComponent{
 				Type:    linebot.FlexComponentTypeText,
 				Text:    research.Description,
@@ -266,6 +321,7 @@ func GenerateResearchFlexComponent(research gd.Research) []linebot.FlexComponent
 				Color:   "#FFFFFF",
 				Margin:  linebot.FlexComponentMarginTypeSm,
 			},
+			// pokemonAvatarContents
 			&linebot.BoxComponent{
 				Type:     linebot.FlexComponentTypeBox,
 				Layout:   linebot.FlexBoxLayoutTypeVertical,
