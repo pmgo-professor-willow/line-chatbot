@@ -2,6 +2,7 @@ package messageTemplate
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
@@ -150,8 +151,9 @@ func GenerateQuestionMessages(selectedQuestion, botBasicID string) []linebot.Sen
 								Action: &linebot.URIAction{
 									Label: "傳送敲敲話給博士",
 									URI: fmt.Sprintf(
-										"https://line.me/R/oaMessage/%s/?給博士，",
+										"https://line.me/R/oaMessage/%s/?%s",
 										botBasicID,
+										url.QueryEscape("給博士，"),
 									),
 								},
 							},
@@ -160,7 +162,11 @@ func GenerateQuestionMessages(selectedQuestion, botBasicID string) []linebot.Sen
 								Style: linebot.FlexButtonStyleTypeLink,
 								Action: &linebot.URIAction{
 									Label: "寫信給博士",
-									URI:   "mailto:salmon.zh.tw@gmail.com?subject=訓練家給維羅博士的一封信&body=博士您好，",
+									URI: fmt.Sprintf(
+										"mailto:salmon.zh.tw@gmail.com?subject=%s&body=%s",
+										url.QueryEscape("訓練家給維羅博士的一封信"),
+										url.QueryEscape("博士您好，"),
+									),
 								},
 							},
 						},
