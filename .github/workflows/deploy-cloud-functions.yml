@@ -35,7 +35,7 @@ jobs:
           mv messageTemplate ./vendor/$MODULE_NAME
           mv utils ./vendor/$MODULE_NAME
 
-      - id: Cloud auth
+      - id: auth
         uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
