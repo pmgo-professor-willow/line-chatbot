@@ -32,7 +32,7 @@ type RocketInvasion struct {
 
 // LoadRocketInvasions load data from remote JSON
 func LoadRocketInvasions(cacheData *[]RocketInvasion) {
-	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-thesilphroad/rocket-invasions.min.json")
+	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-pokemongohub/rocketInvasions.min.json")
 
 	if fetchErr == nil {
 		defer resp.Body.Close()
