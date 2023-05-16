@@ -35,11 +35,15 @@ jobs:
           mv messageTemplate ./vendor/$MODULE_NAME
           mv utils ./vendor/$MODULE_NAME
 
+      - id: Cloud auth
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@main
+        uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: pokemon-go-assistant-chatbot
-          service_account_key: ${{ secrets.GCP_CREDENTIALS }}
           export_default_credentials: true
 
       - name: Use gcloud CLI
