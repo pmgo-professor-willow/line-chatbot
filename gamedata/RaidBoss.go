@@ -32,7 +32,7 @@ type RaidBoss struct {
 
 // LoadRaidBosses load data from remote JSON
 func LoadRaidBosses(cacheData *[]RaidBoss) {
-	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-leekduck/raid-bosses.min.json")
+	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-leekduck/raidBosses.min.json")
 
 	if fetchErr == nil {
 		defer resp.Body.Close()

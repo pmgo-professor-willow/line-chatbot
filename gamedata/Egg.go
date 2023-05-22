@@ -10,23 +10,23 @@ import (
 
 // Egg is pre-processing data from LeekDuck website
 type Egg struct {
-	No             int     `json:"no"`
-	Name           string  `json:"name"`
-	OriginalName   string  `json:"originalName"`
-	Category       string  `json:"category"`
-	ImageURL       string  `json:"imageUrl"`
-	ShinyAvailable bool    `json:"shinyAvailable"`
-	Regional       bool    `json:"regional"`
+	No             int    `json:"no"`
+	Name           string `json:"name"`
+	OriginalName   string `json:"originalName"`
+	Category       string `json:"category"`
+	ImageURL       string `json:"imageUrl"`
+	ShinyAvailable bool   `json:"shinyAvailable"`
+	Regional       bool   `json:"regional"`
 	CP             struct {
 		Min int `json:"min"`
 		Max int `json:"max"`
 	} `json:"cp"`
-	Rate           float32 `json:"rate"`
+	Rate float32 `json:"rate"`
 }
 
 // LoadEggs load data from remote JSON
 func LoadEggs(cacheData *[]Egg) {
-	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-thesilphroad/eggs.min.json")
+	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-leekduck/eggs.min.json")
 
 	if fetchErr == nil {
 		defer resp.Body.Close()
@@ -63,6 +63,6 @@ func CreateDummyEgg() Egg {
 			Max: 0,
 			Min: 0,
 		},
-		Rate:           0,
+		Rate: 0,
 	}
 }
