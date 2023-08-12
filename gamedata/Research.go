@@ -42,7 +42,7 @@ type Research struct {
 
 // LoadResearches load data from remote JSON
 func LoadResearches(cacheData *[]Research) {
-	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-thesilphroad/researches.min.json")
+	resp, fetchErr := http.Get("https://pmgo-professor-willow.github.io/data-leekduck/researches.min.json")
 
 	if fetchErr == nil {
 		defer resp.Body.Close()
