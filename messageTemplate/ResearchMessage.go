@@ -29,7 +29,7 @@ func GenerateResearchListMessages() []linebot.SendingMessage {
 					},
 				),
 				linebot.NewQuickReplyButton(
-					"https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/researches/catching_and_throwing.png",
+					"https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/researches/catching-and-throwing.png",
 					&linebot.PostbackAction{
 						Label:       "捕捉與投球",
 						Data:        "research=catching_and_throwing",
