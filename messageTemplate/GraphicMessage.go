@@ -10,22 +10,22 @@ import (
 	"github.com/thoas/go-funk"
 )
 
-// GenerateGraphicCatalogMessages converts user tweets to LINE template messages
-func GenerateGraphicCatalogMessages(userTweets gd.UserTweets) []linebot.SendingMessage {
-	if utils.IsEmpty(userTweets) {
+// GenerateGraphicCatalogMessages converts user Instagram posts to LINE template messages
+func GenerateGraphicCatalogMessages(instagramPosts gd.UserInstagramPosts) []linebot.SendingMessage {
+	if utils.IsEmpty(instagramPosts) {
 		return utils.GenerateEmptyReasonMessage()
 	}
 
-	tweetChunks := funk.Chunk(userTweets.Tweets, 10).([][]gd.TweetData)
+	postChunks := funk.Chunk(instagramPosts.Posts, 10).([][]gd.InstagramPostData)
 
-	return funk.Map(tweetChunks, func(tweetChunk []gd.TweetData) linebot.SendingMessage {
+	return funk.Map(postChunks, func(postChunk []gd.InstagramPostData) linebot.SendingMessage {
 		return linebot.NewTemplateMessage(
 			"近期的活動圖文資訊",
 			&linebot.ImageCarouselTemplate{
 				Columns: funk.Map(
-					userTweets.Tweets,
-					func(tweet gd.TweetData) *linebot.ImageCarouselColumn {
-						return GenerateGraphicColumn(userTweets.Name, tweet)
+					instagramPosts.Posts,
+					func(post gd.InstagramPostData) *linebot.ImageCarouselColumn {
+						return GenerateGraphicColumn(instagramPosts.Username, post)
 					},
 				).([]*linebot.ImageCarouselColumn),
 			},
@@ -33,19 +33,19 @@ func GenerateGraphicCatalogMessages(userTweets gd.UserTweets) []linebot.SendingM
 	}).([]linebot.SendingMessage)
 }
 
-// GenerateGraphicDetailMessages converts tweet to LINE messages
-func GenerateGraphicDetailMessages(tweet gd.TweetData, userName string) []linebot.SendingMessage {
+// GenerateGraphicDetailMessages converts Instagram post to LINE messages
+func GenerateGraphicDetailMessages(post gd.InstagramPostData, username string) []linebot.SendingMessage {
 	text := fmt.Sprintf(
 		"此則圖文訊息由 %s 整理\n\n%s",
-		userName,
-		tweet.Text,
+		username,
+		post.Text,
 	)
 
 	messages := []linebot.SendingMessage{
 		linebot.NewTextMessage(text),
 	}
 
-	for _, media := range tweet.MediaList {
+	for _, media := range post.MediaList {
 		messages = append(
 			messages,
 			linebot.NewImageMessage(media.URL, media.URL),
@@ -60,15 +60,15 @@ func GenerateGraphicDetailMessages(tweet gd.TweetData, userName string) []linebo
 	return messages
 }
 
-// GenerateGraphicColumn converts user tweets to LINE column
-func GenerateGraphicColumn(twitterUserName string, tweet gd.TweetData) *linebot.ImageCarouselColumn {
+// GenerateGraphicColumn converts user Instagram post to LINE column
+func GenerateGraphicColumn(instagramUsername string, post gd.InstagramPostData) *linebot.ImageCarouselColumn {
 	return linebot.NewImageCarouselColumn(
-		tweet.MediaList[0].URL,
+		post.MediaList[0].URL,
 		&linebot.PostbackAction{
 			Label: "檢視完整資訊",
 			Data: fmt.Sprintf(
-				"graphics=%s&tweetId=%s",
-				twitterUserName, tweet.ID,
+				"graphics=%s&instagramPostId=%s",
+				instagramUsername, post.ID,
 			),
 		},
 	)

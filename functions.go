@@ -67,7 +67,7 @@ func WebhookFunction(w http.ResponseWriter, req *http.Request) {
 						client,
 						fmt.Sprintf("%s: %s", profile.DisplayName, message.Text),
 					)
-					
+
 					messages := mt.GenerateAnsweringMessage(profile.DisplayName)
 					replyMessageCall := client.ReplyMessage(event.ReplyToken, messages...)
 					if _, err := replyMessageCall.Do(); err != nil {
@@ -208,19 +208,19 @@ func PostbackReply(client *linebot.Client, replyToken string, qs url.Values) {
 		}
 	} else if qs.Get("graphics") != "" {
 		// Refresh cache about data from cloud.
-		if time.Since(cache.TweetListUpdatedAt).Minutes() > 1 {
-			gd.LoadTweetList(&cache.TweetList)
-			cache.TweetListUpdatedAt = time.Now()
+		if time.Since(cache.InstagramPostListUpdatedAt).Minutes() > 1 {
+			gd.LoadInstagramPostList(&cache.InstagramPostList)
+			cache.InstagramPostListUpdatedAt = time.Now()
 		}
 
-		selectedTwitterUser := qs.Get("graphics")
-		selectedTweetID := qs.Get("tweetId")
-		selectedUserTweets := gd.FindUserTweets(cache.TweetList, selectedTwitterUser)
-		if selectedTweetID == "" {
-			messages = mt.GenerateGraphicCatalogMessages(selectedUserTweets)
+		selectedInstagramUser := qs.Get("graphics")
+		selectedInstagramPostID := qs.Get("instagramPostId")
+		selectedUserInstagramPosts := gd.FindUserInstagramPosts(cache.InstagramPostList, selectedInstagramUser)
+		if selectedInstagramPostID == "" {
+			messages = mt.GenerateGraphicCatalogMessages(selectedUserInstagramPosts)
 		} else {
-			selectedTweet := gd.FindTweet(selectedUserTweets.Tweets, selectedTweetID)
-			messages = mt.GenerateGraphicDetailMessages(selectedTweet, selectedTwitterUser)
+			selectedPost := gd.FindInstagramPost(selectedUserInstagramPosts.Posts, selectedInstagramPostID)
+			messages = mt.GenerateGraphicDetailMessages(selectedPost, selectedInstagramUser)
 		}
 	} else if qs.Get("channel") != "" {
 		// Refresh cache about data from cloud.
