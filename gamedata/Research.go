@@ -59,9 +59,15 @@ func LoadResearches(cacheData *[]Research) {
 // FilterResearches filters researach by specified label
 func FilterResearches(researches []Research, label string) []Research {
 	return funk.Filter(researches, func(research Research) bool {
+		// Event only
 		isEvent := label == "event" && research.Category == "活動限定"
-		isNotEvent := label == "others" && research.Category != "活動限定"
+		// Catching only
+		isCatchingAndThrowing := label == "catching_and_throwing" && (research.Category == "捕捉" || research.Category == "投球")
+		// Team GO Rocket only
+		isRocket := label == "rocket" && research.Category == "GO 火箭隊"
+		// Others
+		isNotEvent := label == "others" && research.Category != "活動限定" && research.Category != "捕捉" && research.Category != "投球" && research.Category != "GO 火箭隊"
 
-		return isEvent || isNotEvent
+		return isEvent || isCatchingAndThrowing || isRocket || isNotEvent
 	}).([]Research)
 }

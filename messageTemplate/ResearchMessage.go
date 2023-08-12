@@ -23,17 +23,33 @@ func GenerateResearchListMessages() []linebot.SendingMessage {
 				linebot.NewQuickReplyButton(
 					"https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/researches/event.png",
 					&linebot.PostbackAction{
-						Label:       "活動限定課題",
+						Label:       "活動限定",
 						Data:        "research=event",
-						DisplayText: "請列出活動限定課題。",
+						DisplayText: "請列出「活動限定」田野調查。",
+					},
+				),
+				linebot.NewQuickReplyButton(
+					"https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/researches/catching_and_throwing.png",
+					&linebot.PostbackAction{
+						Label:       "捕捉與投球",
+						Data:        "research=catching_and_throwing",
+						DisplayText: "請列出「捕捉與投球」相關田野調查。",
+					},
+				),
+				linebot.NewQuickReplyButton(
+					"https://raw.githubusercontent.com/pmgo-professor-willow/line-chatbot/main/assets/researches/rocket.png",
+					&linebot.PostbackAction{
+						Label:       "GO 火箭隊",
+						Data:        "research=rocket",
+						DisplayText: "請列出「GO 火箭隊」相關田野調查。",
 					},
 				),
 				linebot.NewQuickReplyButton(
 					"",
 					&linebot.PostbackAction{
-						Label:       "其他課題",
+						Label:       "其它田野調查",
 						Data:        "research=others",
-						DisplayText: "請列出其他課題。",
+						DisplayText: "請列出其它田野調查。",
 					},
 				),
 			),
